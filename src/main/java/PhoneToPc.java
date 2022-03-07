@@ -1,12 +1,12 @@
+import be.derycke.pieter.com.COMException;
 import jmtp.*;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class Test {
+public class PhoneToPc {
 
 
     public static void main(String[] args) {
@@ -24,8 +24,7 @@ public class Test {
         System.out.println("Envoi de fichier vers la tablette");
 
         // Iterate over deviceObjects
-        for (
-                PortableDeviceObject object: device.getRootObjects()) {
+        for (PortableDeviceObject object: device.getRootObjects()) {
             // If the object is a storage object
             if (object instanceof PortableDeviceStorageObject) {
                 //racine
@@ -50,25 +49,38 @@ public class Test {
                                     if (o4.getOriginalFileName().equals("com.example.planteinvasives")) {
                                         System.out.println("/com.example.planteinvasives");
 
+
                                         PortableDeviceFolderObject storage3 = (PortableDeviceFolderObject) o4;
                                         for (PortableDeviceObject o5: storage3.getChildObjects()) {
                                             if (o5.getOriginalFileName().equals("files")) {
                                                 System.out.println("/files");
 
                                                 PortableDeviceFolderObject storage4 = (PortableDeviceFolderObject) o5;
+                                                //parcours tout les fichiers du path
                                                 for (PortableDeviceObject o6: storage4.getChildObjects()) {
-                                                    if (o6.getOriginalFileName().equals("Pictures")) {
-                                                        System.out.println("/Pictures");
-
-                                                        //copie des images
+                                                    if(o6.getOriginalFileName().equals("Pictures")){
                                                         PortableDeviceFolderObject storage5 = (PortableDeviceFolderObject) o6;
-                                                        System.out.println("///////////");
 
+                                                        for (PortableDeviceObject o7: storage5.getChildObjects()) {
+                                                            System.out.println(o7.getOriginalFileName());
+
+                                                            //copie de toutes les images sur le bureau
+                                                            //TODO modif la route
+                                                            PortableDeviceToHostImpl32 host =  new PortableDeviceToHostImpl32();
+                                                            try {
+                                                                System.out.println("copie de "+o7.getOriginalFileName());
+                                                                host.copyFromPortableDeviceToHost(o7.getID(),"c:/Users/lacom/Desktop",device);
+                                                            } catch (COMException e) {
+                                                                e.printStackTrace();
+                                                            }
+
+                                                    }
 
 
 
 
                                                     }
+
 
                                                 }
 
@@ -89,6 +101,7 @@ public class Test {
         }
 
     }
+
     public static void copyDirectory(String sourceDirectoryLocation, String destinationDirectoryLocation)
             throws IOException {
         Files.walk(Paths.get(sourceDirectoryLocation))

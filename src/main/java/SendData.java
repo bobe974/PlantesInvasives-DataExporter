@@ -67,6 +67,7 @@ public class SendData {
 
                                     File novoArquivo = new File( "c://sqlite//db//copagaz_mobile_desenv.db");
 
+
                                     InputStream inStream = null;
                                     OutputStream outStream = null;
                                     inStream = new FileInputStream(f);
