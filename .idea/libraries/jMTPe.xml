@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="jMTPe">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../jMTPe-master/binaries/jMTPe.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
