@@ -1,7 +1,9 @@
+package Transfert;
+
 import be.derycke.pieter.com.COMException;
 import jmtp.*;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
