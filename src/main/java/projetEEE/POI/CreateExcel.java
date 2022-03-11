@@ -9,13 +9,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFHyperlink;
 
 public class CreateExcel {
 
@@ -34,6 +31,14 @@ public class CreateExcel {
         CreateExcel createExcel = new CreateExcel();
         DbReader dbReader = new DbReader();
 
+        //TODO TESTTTT
+        HSSFHyperlink hlink = workbook.getCreationHelper().createHyperlink(HyperlinkType.FILE);
+        hlink.setAddress("file:///Users/etienne/Pictures/bionisMekonis.jpg");
+        hlink.setLabel("label");
+        XSSFHyperlink xlink = new XSSFHyperlink(hlink);
+
+
+
         //recupere les données
 
         List<String> nomColonne = new ArrayList<>();
@@ -48,19 +53,23 @@ public class CreateExcel {
         int rownum = 0;
         Cell cell;
         Row row;
-        //
+        //TODO TEST HYPERLINK
         HSSFCellStyle style = createStyleForTitle(workbook);
-
         row = sheet.createRow(rownum);
+        cell = row.createCell(0);
+        cell.setCellValue("Ouvrirphoto");
+        cell.setHyperlink(hlink);
 
         //nom de chaque colonnes
         int i = 0;
         for(String nom: nomColonne){
             System.out.println(nom);
-            cell = row.createCell(i,CellType.STRING);
-            cell.setCellValue(nom);
-            cell.setCellStyle(style);
-            i++;
+            //TODO remettre normal
+//            cell = row.createCell(i,CellType.STRING);
+//            cell.setCellValue(nom);
+//            cell.setCellStyle(style);
+//            cell.setHyperlink(hlink);
+//            i++;
         }
 
         // Data
