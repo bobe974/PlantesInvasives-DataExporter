@@ -134,7 +134,8 @@ public class MysqliteDb {
         statement.setString(3, etat);
         statement.setString(4, stade);
         statement.setString(5, description);
-        statement.setString(6, path);
+        //recupere une partie du path
+        statement.setString(6, path.substring(76));
         statement.setString(7, date);
         statement.setString(8, type);
         statement.setString(9, surface);

@@ -26,14 +26,16 @@ public class CreateExcel {
 
     public static void main(String[] args) throws IOException, SQLException {
 
+        String link_path = "Users/etienne/Pictures/bionisMekonis.jpg";
         HSSFWorkbook workbook = new HSSFWorkbook();
         HSSFSheet sheet = workbook.createSheet("projet eee");
         CreateExcel createExcel = new CreateExcel();
         MysqliteDb mysqliteDb = new MysqliteDb();
 
-        //TODO TESTTTT
+
+        //TODO HYPERLINK
         HSSFHyperlink hlink = workbook.getCreationHelper().createHyperlink(HyperlinkType.FILE);
-        hlink.setAddress("file:///Users/etienne/Pictures/bionisMekonis.jpg");
+        hlink.setAddress("file:///"+link_path);
         hlink.setLabel("label");
         XSSFHyperlink xlink = new XSSFHyperlink(hlink);
 
