@@ -26,7 +26,7 @@ public class CreateExcel {
 
     public static void main(String[] args) throws IOException, SQLException {
 
-        String link_path = "Users/etienne/Pictures/bionisMekonis.jpg";
+        String link_path = "JPEG_20220322_193052_4086193540502885980.jpg";
         HSSFWorkbook workbook = new HSSFWorkbook();
         HSSFSheet sheet = workbook.createSheet("projet eee");
         CreateExcel createExcel = new CreateExcel();
@@ -34,10 +34,11 @@ public class CreateExcel {
 
 
         //TODO HYPERLINK
-        HSSFHyperlink hlink = workbook.getCreationHelper().createHyperlink(HyperlinkType.FILE);
-        hlink.setAddress("file:///"+link_path);
-        hlink.setLabel("label");
-        XSSFHyperlink xlink = new XSSFHyperlink(hlink);
+       // HSSFHyperlink hlink = workbook.getCreationHelper().createHyperlink(HyperlinkType.FILE);
+        // hlink.setAddress("C:/Users/lacom/Desktop/zz.jpg");
+       // hlink.setAddress(link_path);
+        //hlink.setLabel("label");
+        //XSSFHyperlink xlink = new XSSFHyperlink(hlink);
 
 
 
@@ -58,20 +59,19 @@ public class CreateExcel {
         //TODO TEST HYPERLINK
         HSSFCellStyle style = createStyleForTitle(workbook);
         row = sheet.createRow(rownum);
-        cell = row.createCell(0);
-        cell.setCellValue("Ouvrirphoto");
-        cell.setHyperlink(hlink);
+//        cell = row.createCell(0);
+//        cell.setCellValue("Ouvrirphoto");
+//        cell.setHyperlink(hlink);
 
         //nom de chaque colonnes
         int i = 0;
         for(String nom: nomColonne){
             System.out.println(nom);
             //TODO remettre normal
-//            cell = row.createCell(i,CellType.STRING);
-//            cell.setCellValue(nom);
-//            cell.setCellStyle(style);
-//            cell.setHyperlink(hlink);
-//            i++;
+            cell = row.createCell(i,CellType.STRING);
+            cell.setCellValue(nom);
+            cell.setCellStyle(style);
+            i++;
         }
 
         // Data
@@ -86,14 +86,29 @@ public class CreateExcel {
             for(int k=0;k<nomColonne.size();k++){
 
                 cell = row.createCell(k, CellType.STRING);
-                cell.setCellValue(resultSet.getString(k+1));
+
+                //pour l'attribut chemin on ajoute l'hyperlien
+                if(k == 3){
+                    HSSFHyperlink hlink1 = workbook.getCreationHelper().createHyperlink(HyperlinkType.FILE);
+
+                    String path = resultSet.getString(k+1).substring(76);
+                    System.out.println(path);
+                    cell.setCellValue(path);
+                    hlink1.setAddress(path);
+//                    hlink.setLabel("label");
+//                    cell.setCellValue("Ouvrirphoto");
+                    cell.setHyperlink(hlink1);
+                }else{
+                    cell.setCellValue(resultSet.getString(k+1));
+                }
+
             }
 
 
         }
 
         //chemin du fichier
-        File file = new File("/Users/etienne/Desktop/employee.xls");
+        File file = new File("c:/Users/lacom/Downloads/projetEEE/employee.xls");
         file.getParentFile().mkdirs();
 
         FileOutputStream outFile = new FileOutputStream(file);

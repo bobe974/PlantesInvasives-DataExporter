@@ -9,7 +9,7 @@ public class MysqliteDb {
     public static Connection conMainDb;
     private static boolean hasData = false;
     private ResultSet mainrs;
-    private ResultSet rs;
+    private ResultSet rs,rs2;
     private String reqCreatedb = "CREATE TABLE IF NOT EXISTS \"Fiche\" (\n" +
             "\t\"id_fiche\"\tINTEGER NOT NULL,\n" +
             "\t\"nom_etablissement\"\tTEXT,\n" +
@@ -50,6 +50,7 @@ public class MysqliteDb {
         {
             //si la base existe on se connecte
             System.out.print("connection a la base existante");
+            //créer un la base a cet emplacement
             conMainDb = DriverManager.getConnection("jdbc:sqlite:Maindb.db");
 
         }
@@ -68,7 +69,7 @@ public class MysqliteDb {
     }
 
     public ResultSet getResult(){
-        return this.rs;
+        return this.rs2;
     }
 
     //connection a une base
@@ -78,10 +79,19 @@ public class MysqliteDb {
         try
         {
             //connection a une base existante
-            connection = DriverManager.getConnection("jdbc:sqlite:/Users/etienne/Desktop/PlanteInvasives.sqlite");
+            connection = DriverManager.getConnection("jdbc:sqlite:PlanteInvasives.sqlite");
             Statement statement = connection.createStatement();
+            Statement statement2 = connection.createStatement();
             statement.setQueryTimeout(30);
             rs = statement.executeQuery("SELECT * FROM Fiche \n" +
+                    "              INNER JOIN Photographie \n" +
+                    "             ON Fiche.id_fiche = Photographie.id_photo\n" +
+                    "             INNER JOIN Plante \n" +
+                    "             ON Fiche.id_fiche = Plante.id_plante\n" +
+                    "             INNER JOIN Lieu \n" +
+                    "            ON Fiche.id_fiche = Lieu.id_lieu ");
+
+            rs2 = statement2.executeQuery("SELECT * FROM Fiche \n" +
                     "              INNER JOIN Photographie \n" +
                     "             ON Fiche.id_fiche = Photographie.id_photo\n" +
                     "             INNER JOIN Plante \n" +
