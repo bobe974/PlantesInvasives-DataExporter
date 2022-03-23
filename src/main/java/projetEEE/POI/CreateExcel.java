@@ -29,7 +29,7 @@ public class CreateExcel {
         HSSFWorkbook workbook = new HSSFWorkbook();
         HSSFSheet sheet = workbook.createSheet("projet eee");
         CreateExcel createExcel = new CreateExcel();
-        DbReader dbReader = new DbReader();
+        MysqliteDb mysqliteDb = new MysqliteDb();
 
         //TODO TESTTTT
         HSSFHyperlink hlink = workbook.getCreationHelper().createHyperlink(HyperlinkType.FILE);
@@ -42,10 +42,10 @@ public class CreateExcel {
         //recupere les données
 
         List<String> nomColonne = new ArrayList<>();
-        ResultSet resultSet = dbReader.getResult();
+        ResultSet resultSet = mysqliteDb.getResult();
 
         try {
-             nomColonne = createExcel.getNomColonne(dbReader.getResult());
+             nomColonne = createExcel.getNomColonne(mysqliteDb.getResult());
         } catch (SQLException e) {
             e.printStackTrace();
         }
