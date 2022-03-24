@@ -1,6 +1,7 @@
 package projetEEE.POI;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -24,19 +25,20 @@ public class CreateExcel {
         return style;
     }
 
-    public static void main(String[] args) throws IOException, SQLException {
+    public CreateExcel(ResultSet resultSet,String destpath) throws SQLException {
 
-        String link_path = "JPEG_20220322_193052_4086193540502885980.jpg";
+        //resultSet = mysqliteDb.getResult();
+
+        //String link_path = "JPEG_20220322_193052_4086193540502885980.jpg";
         HSSFWorkbook workbook = new HSSFWorkbook();
         HSSFSheet sheet = workbook.createSheet("projet eee");
-        CreateExcel createExcel = new CreateExcel();
         MysqliteDb mysqliteDb = new MysqliteDb();
 
 
         //TODO HYPERLINK
-       // HSSFHyperlink hlink = workbook.getCreationHelper().createHyperlink(HyperlinkType.FILE);
+        // HSSFHyperlink hlink = workbook.getCreationHelper().createHyperlink(HyperlinkType.FILE);
         // hlink.setAddress("C:/Users/lacom/Desktop/zz.jpg");
-       // hlink.setAddress(link_path);
+        // hlink.setAddress(link_path);
         //hlink.setLabel("label");
         //XSSFHyperlink xlink = new XSSFHyperlink(hlink);
 
@@ -45,10 +47,10 @@ public class CreateExcel {
         //recupere les données
 
         List<String> nomColonne = new ArrayList<>();
-        ResultSet resultSet = mysqliteDb.getResult();
+
 
         try {
-             nomColonne = createExcel.getNomColonne(mysqliteDb.getResult());
+            nomColonne = getNomColonne(resultSet);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -91,7 +93,7 @@ public class CreateExcel {
                 if(k == 3){
                     HSSFHyperlink hlink1 = workbook.getCreationHelper().createHyperlink(HyperlinkType.FILE);
 
-                    String path = resultSet.getString(k+1).substring(76);
+                    String path = resultSet.getString(k+1);
                     System.out.println(path);
                     cell.setCellValue(path);
                     hlink1.setAddress(path);
@@ -108,14 +110,24 @@ public class CreateExcel {
         }
 
         //chemin du fichier
-        File file = new File("c:/Users/lacom/Downloads/projetEEE/employee.xls");
+
+        File file = new File(destpath);
         file.getParentFile().mkdirs();
 
-        FileOutputStream outFile = new FileOutputStream(file);
-        workbook.write(outFile);
-        System.out.println("fichier xls créer: " + file.getAbsolutePath());
-
+        FileOutputStream outFile = null;
+        try {
+            outFile = new FileOutputStream(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        try {
+            workbook.write(outFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("******fichier xls crée!*****: " + file.getAbsolutePath());
     }
+
 
     /**
      * recupere le nom de chaque occurence

@@ -37,7 +37,7 @@ public class MysqliteDb {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        connectToDb();
+        //connectToDb();
     }
 
 
@@ -49,7 +49,7 @@ public class MysqliteDb {
         if(file.exists())
         {
             //si la base existe on se connecte
-            System.out.print("connection a la base existante");
+            System.out.print("*******connection a la base existante*******");
             //créer un la base a cet emplacement
             conMainDb = DriverManager.getConnection("jdbc:sqlite:Maindb.db");
 
@@ -61,7 +61,7 @@ public class MysqliteDb {
             conMainDb = DriverManager.getConnection("jdbc:sqlite:Maindb.db");
             Statement statement = conMainDb.createStatement();
             statement.executeUpdate(reqCreatedb);
-            System.out.println("base créer");
+            System.out.println("*********réation d'une base*********");
 
         }
 
@@ -72,14 +72,21 @@ public class MysqliteDb {
         return this.rs2;
     }
 
+    public ResultSet getAllMainDB() throws SQLException {
+        Statement statement = conMainDb.createStatement();
+        ResultSet res;
+        res = statement.executeQuery("SELECT * FROM Fiche");
+        return res;
+    }
+
     //connection a une base
-    public void connectToDb(){
+    public void feedDb(String dbname){
         Connection connection = null;
 
         try
         {
             //connection a une base existante
-            connection = DriverManager.getConnection("jdbc:sqlite:PlanteInvasives.sqlite");
+            connection = DriverManager.getConnection("jdbc:sqlite:"+dbname);
             Statement statement = connection.createStatement();
             Statement statement2 = connection.createStatement();
             statement.setQueryTimeout(30);
