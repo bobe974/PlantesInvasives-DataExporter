@@ -1,3 +1,4 @@
+import Transfert.PhoneToPc;
 import projetEEE.POI.CreateCSV;
 import projetEEE.POI.CreateExcel;
 import projetEEE.POI.MysqliteDb;
@@ -120,9 +121,10 @@ public class Fenetre extends JFrame {
         btnAdd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //PhoneToPc phoneToPc = new PhoneToPc();
-                //phoneToPc.TransfertPhoto();
-                //phoneToPc.TransfertDb();
+                PhoneToPc phoneToPc = new PhoneToPc();
+                phoneToPc.TransfertPhoto();
+                phoneToPc.TransfertDb();
+
                 JOptionPane.showMessageDialog(null, "Transfert effectué"
                         , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
             }
@@ -149,13 +151,13 @@ public class Fenetre extends JFrame {
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
-                try {
-                    CreateCSV createCSV = new CreateCSV(resultSet1);
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+//                try {
+//                    CreateCSV createCSV = new CreateCSV(resultSet1);
+//                } catch (SQLException ex) {
+//                    ex.printStackTrace();
+//                } catch (IOException ex) {
+//                    ex.printStackTrace();
+//                }
 
                 JOptionPane.showMessageDialog(null, "Export effectué"
                         , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
