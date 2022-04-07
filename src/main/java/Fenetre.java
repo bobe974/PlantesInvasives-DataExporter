@@ -1,3 +1,5 @@
+import projetEEE.POI.CreateCSV;
+import projetEEE.POI.CreateExcel;
 import projetEEE.POI.MysqliteDb;
 
 import javax.swing.*;
@@ -110,6 +112,8 @@ public class Fenetre extends JFrame {
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
+                JOptionPane.showMessageDialog(null, "Données sauvegardées"
+                        , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
             }
         });
 
@@ -119,9 +123,47 @@ public class Fenetre extends JFrame {
                 //PhoneToPc phoneToPc = new PhoneToPc();
                 //phoneToPc.TransfertPhoto();
                 //phoneToPc.TransfertDb();
+                JOptionPane.showMessageDialog(null, "Transfert effectué"
+                        , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
+            }
+        });
+
+        btnExport.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ResultSet resultSet = null;
+                try {
+                    resultSet = mysqliteDb.getAllMainDB();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+                ResultSet resultSet1 = null;
+                try {
+                    resultSet1 = mysqliteDb.getAllMainDB();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+                try {
+                    CreateExcel createExcel = new CreateExcel(resultSet,"./employe.xls");
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+                try {
+                    CreateCSV createCSV = new CreateCSV(resultSet1);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+
+                JOptionPane.showMessageDialog(null, "Export effectué"
+                        , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
+
             }
         });
     }
+
 
 
 }
