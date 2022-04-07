@@ -2,6 +2,7 @@ package projetEEE.POI;
 
 import java.io.File;
 import java.sql.*;
+import java.util.ArrayList;
 
 
 public class MysqliteDb {
@@ -42,7 +43,7 @@ public class MysqliteDb {
 
 
     //créer la base de données locale
-    public void initialise() throws SQLException, ClassNotFoundException {
+    private void initialise() throws SQLException, ClassNotFoundException {
 
         //vérifie si la base existe
         File file = new File("Maindb.db");
@@ -52,26 +53,17 @@ public class MysqliteDb {
             System.out.print("*******connection a la base existante*******");
             //créer un la base a cet emplacement
             conMainDb = DriverManager.getConnection("jdbc:sqlite:Maindb.db");
-
         }
         else{
-
             //créer la base
             Class.forName("org.sqlite.JDBC");
             conMainDb = DriverManager.getConnection("jdbc:sqlite:Maindb.db");
             Statement statement = conMainDb.createStatement();
             statement.executeUpdate(reqCreatedb);
             System.out.println("*********réation d'une base*********");
-
         }
-
-
     }
-
-    public ResultSet getResult(){
-        return this.rs2;
-    }
-
+    /******************METHODE CRUD MAIN ***********************/
     public ResultSet getAllMainDB() throws SQLException {
         Statement statement = conMainDb.createStatement();
         ResultSet res;
@@ -79,7 +71,13 @@ public class MysqliteDb {
         return res;
     }
 
-    //connection a une base
+    public void deleteDB() throws SQLException {
+        Statement statement = conMainDb.createStatement();
+        statement.executeUpdate("DELETE FROM Fiche");
+    }
+    /**********************************************************/
+
+    //connection a une base et alimente la base pricipale
     public void feedDb(String dbname){
         Connection connection = null;
 
@@ -130,13 +128,10 @@ public class MysqliteDb {
 //                System.out.println("latittude = " + rs.getString(15));
 //                System.out.println("longitude = " + rs.getString(16));
 //                System.out.println("remarque = " + rs.getString(17));
-
             }
         }
         catch(SQLException e)
         {
-            // if the error message is "out of memory",
-            // it probably means no database file is found
             System.err.println(e.getMessage());
         }
     }
@@ -167,10 +162,26 @@ public class MysqliteDb {
         }
     }
 
-    public static void main(String[] args) throws SQLException, ClassNotFoundException {
-        MysqliteDb sqliteTest = new MysqliteDb();
-        sqliteTest.insert("pjac","tulipe","sale","grand","riendire","path","122929","typedemerde","carré","3","23","24","riendie");
+    /**
+     * recupere le nom de chaque occurence de la base
+     * @return
+     * @throws SQLException
+     */
+    public ArrayList<String> getNomColonne(ResultSet resultSet) throws SQLException {
+
+        ResultSetMetaData metadata = null;
+        int columnCount = 0;
+        ArrayList<String> colonne = new ArrayList<String>();
+
+        metadata = resultSet.getMetaData();
+        columnCount = metadata.getColumnCount();
+
+
+        //la premiere colonne commence a 1
+        for (int i = 1; i < columnCount+1 ; i++) {
+            String columnName = metadata.getColumnName(i);
+            colonne.add(columnName);
+        }
+        return  colonne;
     }
-
-
 }

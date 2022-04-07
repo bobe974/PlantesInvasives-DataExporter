@@ -27,28 +27,12 @@ public class CreateExcel {
 
     public CreateExcel(ResultSet resultSet,String destpath) throws SQLException {
 
-        //resultSet = mysqliteDb.getResult();
-
-        //String link_path = "JPEG_20220322_193052_4086193540502885980.jpg";
         HSSFWorkbook workbook = new HSSFWorkbook();
         HSSFSheet sheet = workbook.createSheet("projet eee");
         MysqliteDb mysqliteDb = new MysqliteDb();
 
-
-        //TODO HYPERLINK
-        // HSSFHyperlink hlink = workbook.getCreationHelper().createHyperlink(HyperlinkType.FILE);
-        // hlink.setAddress("C:/Users/lacom/Desktop/zz.jpg");
-        // hlink.setAddress(link_path);
-        //hlink.setLabel("label");
-        //XSSFHyperlink xlink = new XSSFHyperlink(hlink);
-
-
-
-        //recupere les données
-
+        //recupere les noms des colonnes
         List<String> nomColonne = new ArrayList<>();
-
-
         try {
             nomColonne = getNomColonne(resultSet);
         } catch (SQLException e) {
@@ -80,37 +64,26 @@ public class CreateExcel {
 
         while(resultSet.next()){
             rownum++;
-
             //créer une nouvelle ligne
             row = sheet.createRow(rownum);
-
             //cellule suivante en ligne
             for(int k=0;k<nomColonne.size();k++){
-
                 cell = row.createCell(k, CellType.STRING);
-
                 //pour l'attribut chemin on ajoute l'hyperlien
                 if(k == 3){
                     HSSFHyperlink hlink1 = workbook.getCreationHelper().createHyperlink(HyperlinkType.FILE);
-
                     String path = resultSet.getString(k+1);
-                    System.out.println(path);
                     cell.setCellValue(path);
                     hlink1.setAddress(path);
-//                    hlink.setLabel("label");
 //                    cell.setCellValue("Ouvrirphoto");
                     cell.setHyperlink(hlink1);
                 }else{
                     cell.setCellValue(resultSet.getString(k+1));
                 }
-
             }
-
-
         }
 
         //chemin du fichier
-
         File file = new File(destpath);
         file.getParentFile().mkdirs();
 

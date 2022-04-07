@@ -1,9 +1,13 @@
+import projetEEE.POI.MysqliteDb;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 
@@ -11,20 +15,26 @@ public class Fenetre extends JFrame {
 
     private JPanel panneau;
     private JTextArea jTextArea, jTextrdf, jtextsparql, jresultsparql;
-    private JScrollPane sp, sp2;
     private JTable jTable;
+    private JScrollPane scrollTable;
     private  JButton btnTransfert;
+
+    /**************DATA************/
+    private MysqliteDb mysqliteDb;
     //En-têtes pour JTable
     private String[] columns = new String[] {
-            "Nom",
-            "Prénom",
-            "URI"
+            "id_fiche", "établissement", "Nom plante", "état", "stade", "description", "photo", "date_photo",
+            "type", "surface", "nb_individu","latitude", "longitude", "remarques"
     };
-    private Object[][] data = new Object[20][20];
+
+    //données du jtable
+    private Object[][] data = new Object[2000][14];
+
+    /**************DATA************/
 
     public static void main(String[] args) {
         Fenetre window = new Fenetre();
-        window.setSize(800, 500);
+        window.setSize(1500, 1000);
         window.setVisible(true);
 
     }
@@ -47,15 +57,26 @@ public class Fenetre extends JFrame {
 
     private void initialize() {
 
+        //initialisation bdd
+        mysqliteDb = new MysqliteDb();
+
         //panneau principal
         panneau = new JPanel();
         panneau.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20));
+
+        //jtable
+        jTable = new JTable(data, columns);
+        scrollTable = new JScrollPane(jTable);
+        scrollTable.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollTable.setPreferredSize(new Dimension(1000, 400));
+
 
         //bouttons
         btnTransfert = new JButton("Récupérer les données");
 
         //ajout fans le jpanel
         panneau.add(btnTransfert);
+        panneau.add(scrollTable);
         add(panneau);
 
 
@@ -64,6 +85,30 @@ public class Fenetre extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
+                // connection usb
+
+                //se connecte a une base et alimente la base principal
+                mysqliteDb.feedDb("PlanteInvasives.sqlite");
+
+                //affiche le contenu dans la jtable
+                ResultSet resultSet;
+                try {
+                     resultSet = mysqliteDb.getAllMainDB();
+                     int i = 0;
+                    while (resultSet.next()){
+                        for (int j = 0; j < mysqliteDb.getNomColonne(resultSet).size(); j++) {
+                            //ligne / colonnes
+                            data[i][j] = resultSet.getString(j+1);
+                        }
+                        i++;
+                    }
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+
+
+
+                //conversion
             }
         });
     }
