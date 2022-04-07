@@ -17,14 +17,14 @@ public class Fenetre extends JFrame {
     private JTextArea jTextArea, jTextrdf, jtextsparql, jresultsparql;
     private JTable jTable;
     private JScrollPane scrollTable;
-    private  JButton btnTransfert;
+    private  JButton btnTransfert, btnAdd, btnExport;
 
     /**************DATA************/
     private MysqliteDb mysqliteDb;
     //En-têtes pour JTable
     private String[] columns = new String[] {
-            "id_fiche", "établissement", "Nom plante", "état", "stade", "description", "photo", "date_photo",
-            "type", "surface", "nb_individu","latitude", "longitude", "remarques"
+            "Id_fiche","Etablissement","Nom_plante","État","Stade","Description","Photo","Date_photo",
+            "Type","Surface","Nb_individu","Latitude","Longitude","Remarques"
     };
 
     //données du jtable
@@ -69,14 +69,19 @@ public class Fenetre extends JFrame {
         scrollTable = new JScrollPane(jTable);
         scrollTable.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollTable.setPreferredSize(new Dimension(1000, 400));
+        panneau.add(scrollTable);
 
 
         //bouttons
         btnTransfert = new JButton("Récupérer les données");
+        panneau.add(btnTransfert);
+        btnAdd = new JButton("Ajouter des données");
+        panneau.add(btnAdd);
+        btnExport = new JButton("Exporter...");
+        panneau.add(btnExport);
+
 
         //ajout fans le jpanel
-        panneau.add(btnTransfert);
-        panneau.add(scrollTable);
         add(panneau);
 
 
@@ -105,10 +110,15 @@ public class Fenetre extends JFrame {
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
+            }
+        });
 
-
-
-                //conversion
+        btnAdd.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //PhoneToPc phoneToPc = new PhoneToPc();
+                //phoneToPc.TransfertPhoto();
+                //phoneToPc.TransfertDb();
             }
         });
     }
