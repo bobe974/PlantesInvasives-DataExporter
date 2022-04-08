@@ -159,19 +159,19 @@ public class Fenetre extends JFrame {
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
-                try {
-                    CreateCSV createCSV = new CreateCSV(resultSet1);
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+//                try {
+//                    CreateCSV createCSV = new CreateCSV(resultSet1);
+//                } catch (SQLException ex) {
+//                    ex.printStackTrace();
+//                } catch (IOException ex) {
+//                    ex.printStackTrace();
+//                }
 
-
+                JOptionPane.showMessageDialog(null, "Export effectué"
+                        , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
 
             }
         });
-
     }
 
     /**
