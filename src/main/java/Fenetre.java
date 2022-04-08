@@ -1,16 +1,16 @@
-import projetEEE.POI.CreateCSV;
+import Transfert.MTPUtil;
+import Transfert.PhoneToPc;
+import jmtp.PortableDevice;
 import projetEEE.POI.CreateExcel;
 import projetEEE.POI.MysqliteDb;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 
 public class Fenetre extends JFrame {
@@ -18,8 +18,11 @@ public class Fenetre extends JFrame {
     private JPanel panneau;
     private JTextArea jTextArea, jTextrdf, jtextsparql, jresultsparql;
     private JTable jTable;
+    private  JList jList;
+    //créer le modèle qui  va contenir les appareils connectés
+    DefaultListModel<String> model = new DefaultListModel<>();
     private JScrollPane scrollTable;
-    private  JButton btnTransfert, btnAdd, btnExport;
+    private  JButton btnTransfert, btnAdd, btnExport, btnSelectioner;
 
     /**************DATA************/
     private MysqliteDb mysqliteDb;
@@ -36,7 +39,7 @@ public class Fenetre extends JFrame {
 
     public static void main(String[] args) {
         Fenetre window = new Fenetre();
-        window.setSize(1500, 1000);
+        window.setSize(830,600);
         window.setVisible(true);
         window.feedJtable();
 
@@ -71,11 +74,23 @@ public class Fenetre extends JFrame {
         jTable = new JTable(data, columns);
         scrollTable = new JScrollPane(jTable);
         scrollTable.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollTable.setPreferredSize(new Dimension(1000, 400));
+        scrollTable.setPreferredSize(new Dimension(730,300));
         panneau.add(scrollTable);
 
+        //Jlist
+        //recuperer tous les appareils
+        MTPUtil mtpUtil = new MTPUtil();
+        for (PortableDevice portableDevice : mtpUtil.getDevices()){
+            portableDevice.open();
+            model.addElement(portableDevice.getModel());
+            portableDevice.close();
+        }
+        jList = new JList(model);
+        panneau.add(jList);
 
         //bouttons
+        btnSelectioner = new JButton("Selectionner");
+        panneau.add(btnSelectioner);
         btnTransfert = new JButton("Récupérer les données");
         panneau.add(btnTransfert);
         btnAdd = new JButton("Ajouter des données");
@@ -89,6 +104,32 @@ public class Fenetre extends JFrame {
 
 
         //event
+
+        btnSelectioner.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                    int index = jList.getSelectedIndex();
+                    String s = (String) jList.getSelectedValue();
+                    System.out.println("Value Selected: " + s);
+                    //transfert
+                     PhoneToPc phoneToPc = new PhoneToPc();
+                     //c:/Users/lacom/Downloads/projetEEE
+                //TODO user qui choisi un emplacement system au premier lancement
+                     phoneToPc.TransfertPhoto(s,System.getProperty("user.dir"));
+                     phoneToPc.TransfertDb(s,System.getProperty("user.dir"));
+
+                     //vérifie si le fichier existe
+                File fichier = new File(System.getProperty("user.dir")+"/PlanteInvasives.sqlite");
+                //TODO copier les photos dans le meme dossier
+                if(fichier.exists()){
+                    JOptionPane.showMessageDialog(null, "Succes"
+                            , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
+                }
+
+
+            }
+        });
         btnTransfert.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -149,6 +190,7 @@ public class Fenetre extends JFrame {
 
                         //vérifie si le fichier existe
                         fichier = new File(jFileChooser.getSelectedFile().getAbsolutePath()+".xls");
+                        //TODO copier les photos dans le meme dossier
                         if(fichier.exists()){
                             JOptionPane.showMessageDialog(null, "Export effectué"
                                     , "Projet EEE", JOptionPane.PLAIN_MESSAGE);

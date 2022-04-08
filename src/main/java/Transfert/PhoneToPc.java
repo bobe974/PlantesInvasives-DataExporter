@@ -12,16 +12,25 @@ public class PhoneToPc {
 
     public static void main(String[] args) {
         PhoneToPc phoneToPc = new PhoneToPc();
-        phoneToPc.TransfertPhoto();
-        phoneToPc.TransfertDb();    }
+        //phoneToPc.TransfertPhoto();
+        //phoneToPc.TransfertDb();
+    }
 
-    public void TransfertPhoto(){
+    public void TransfertPhoto(String nomAppareil, String path){
         PortableDeviceManager manager = new PortableDeviceManager();
-        PortableDevice device = manager.getDevices()[0];
-        device.open();
-        System.out.println("---------------");
-        System.out.println("Envoi de fichier vers la tablette");
+       // PortableDevice device = manager.getDevices()[0];
+        PortableDevice device  = null;
+        // TEST///////////////////////////////
+        for (PortableDevice portableDevice :  manager.getDevices()){
+            portableDevice.open();
+            if(portableDevice.getModel().equals(nomAppareil)){
+                device = portableDevice;
+            }
+            portableDevice.close();
+        }
+        // TEST///////////////////////////////
 
+        //device.open();
         // Iterate  deviceObjects
         for (PortableDeviceObject object: device.getRootObjects()) {
 
@@ -29,22 +38,22 @@ public class PhoneToPc {
 
                 //racine
                 PortableDeviceStorageObject storage = (PortableDeviceStorageObject) object;
-                System.out.println("ca marche dossier," + storage.getDescription());
+                System.out.println("////PHOTOS" + storage.getDescription());
 
                 for (PortableDeviceObject o2: storage.getChildObjects()) {
 
                     if (o2.getOriginalFileName().equals("Android")) {
-                        System.out.println("/dans Android");
+
 
                         PortableDeviceFolderObject storage1 = (PortableDeviceFolderObject) o2;
                         for (PortableDeviceObject o3: storage1.getChildObjects()) {
                             if (o3.getOriginalFileName().equals("data")) {
-                                System.out.println("/data");
+
 
                                 PortableDeviceFolderObject storage2 = (PortableDeviceFolderObject) o3;
                                 for (PortableDeviceObject o4: storage2.getChildObjects()) {
                                     if (o4.getOriginalFileName().equals("com.example.planteinvasives")) {
-                                        System.out.println("/com.example.planteinvasives");
+
 
                                         PortableDeviceFolderObject storage3 = (PortableDeviceFolderObject) o4;
                                         for (PortableDeviceObject o5: storage3.getChildObjects()) {
@@ -65,7 +74,7 @@ public class PhoneToPc {
                                                             PortableDeviceToHostImpl32 host =  new PortableDeviceToHostImpl32();
                                                             try {
                                                                 System.out.println("copie de "+o7.getOriginalFileName());
-                                                                host.copyFromPortableDeviceToHost(o7.getID(),"c:/Users/lacom/Downloads/projetEEE",device);
+                                                                host.copyFromPortableDeviceToHost(o7.getID(),path,device);
                                                             } catch (COMException e) {
                                                                 e.printStackTrace();
                                                             }
@@ -79,18 +88,27 @@ public class PhoneToPc {
                             }
                         }
                     }
-                    manager.getDevices()[0].close();
+                   device.close();
                 }
             }
         }
     }
 
-    public void TransfertDb(){
+    public void TransfertDb(String nomAppareil, String path){
         PortableDeviceManager manager = new PortableDeviceManager();
-        PortableDevice device = manager.getDevices()[0];
-        device.open();
-        System.out.println("---------------");
-        System.out.println("Envoi de fichier vers la tablette");
+        //PortableDevice device = manager.getDevices()[0];
+        PortableDevice device  = null;
+        // TEST///////////////////////////////
+        for (PortableDevice portableDevice :  manager.getDevices()){
+            portableDevice.open();
+            if(portableDevice.getModel().equals(nomAppareil)){
+                device = portableDevice;
+            }
+            portableDevice.close();
+        }
+        // TEST///////////////////////////////
+        System.out.println("-------BDD--------");
+        System.out.println("Tentative de connexion");
 
         // Iterate  deviceObjects
         for (PortableDeviceObject object: device.getRootObjects()) {
@@ -99,27 +117,27 @@ public class PhoneToPc {
 
                 //racine
                 PortableDeviceStorageObject storage = (PortableDeviceStorageObject) object;
-                System.out.println("ca marche dossier," + storage.getDescription());
+                System.out.println("///COPIE BDD" + storage.getDescription());
 
                 for (PortableDeviceObject o2: storage.getChildObjects()) {
 
                     if (o2.getOriginalFileName().equals("Android")) {
-                        System.out.println("/dans Android");
+
 
                         PortableDeviceFolderObject storage1 = (PortableDeviceFolderObject) o2;
                         for (PortableDeviceObject o3: storage1.getChildObjects()) {
                             if (o3.getOriginalFileName().equals("data")) {
-                                System.out.println("/data");
+
 
                                 PortableDeviceFolderObject storage2 = (PortableDeviceFolderObject) o3;
                                 for (PortableDeviceObject o4: storage2.getChildObjects()) {
                                     if (o4.getOriginalFileName().equals("com.example.planteinvasives")) {
-                                        System.out.println("/com.example.planteinvasives");
+
 
                                         PortableDeviceFolderObject storage3 = (PortableDeviceFolderObject) o4;
                                         for (PortableDeviceObject o5: storage3.getChildObjects()) {
                                             if (o5.getOriginalFileName().equals("files")) {
-                                                System.out.println("/files");
+
 
                                                 PortableDeviceFolderObject storage4 = (PortableDeviceFolderObject) o5;
                                                 //parcours tout les fichiers du path
@@ -132,12 +150,11 @@ public class PhoneToPc {
                                                            PortableDeviceFolderObject storage6 = (PortableDeviceFolderObject) o7;
                                                                 for (PortableDeviceObject o8: storage6.getChildObjects()) {
 
-                                                                    System.out.println("dans :"+ o8.getOriginalFileName());
                                                                     //copie de toutes les images sur le bureau
                                                                     PortableDeviceToHostImpl32 host =  new PortableDeviceToHostImpl32();
                                                                     try {
                                                                         System.out.println("copie de "+o8.getOriginalFileName());
-                                                                        host.copyFromPortableDeviceToHost(o8.getID(),"c:/Users/lacom/Downloads/projetEEE",device);
+                                                                        host.copyFromPortableDeviceToHost(o8.getID(),path,device);
                                                                     } catch (COMException e) {
                                                                         e.printStackTrace();
                                                                     }
@@ -154,7 +171,7 @@ public class PhoneToPc {
                             }
                         }
                     }
-                    manager.getDevices()[0].close();
+                   device.close();
                 }
             }
         }
