@@ -38,6 +38,7 @@ public class Fenetre extends JFrame {
         Fenetre window = new Fenetre();
         window.setSize(1500, 1000);
         window.setVisible(true);
+        window.feedJtable();
 
     }
 
@@ -98,20 +99,7 @@ public class Fenetre extends JFrame {
                 mysqliteDb.feedDb("PlanteInvasives.sqlite");
 
                 //affiche le contenu dans la jtable
-                ResultSet resultSet;
-                try {
-                     resultSet = mysqliteDb.getAllMainDB();
-                     int i = 0;
-                    while (resultSet.next()){
-                        for (int j = 0; j < mysqliteDb.getNomColonne(resultSet).size(); j++) {
-                            //ligne / colonnes
-                            data[i][j] = resultSet.getString(j+1);
-                        }
-                        i++;
-                    }
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
+                data = feedJtable();
                 JOptionPane.showMessageDialog(null, "Données sauvegardées"
                         , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
             }
@@ -123,6 +111,10 @@ public class Fenetre extends JFrame {
                 //PhoneToPc phoneToPc = new PhoneToPc();
                 //phoneToPc.TransfertPhoto();
                 //phoneToPc.TransfertDb();
+//                if (panneau.isVisible()){
+//                    panneau.setVisible(false);
+//                }
+
                 JOptionPane.showMessageDialog(null, "Transfert effectué"
                         , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
             }
@@ -145,7 +137,25 @@ public class Fenetre extends JFrame {
                     ex.printStackTrace();
                 }
                 try {
-                    CreateExcel createExcel = new CreateExcel(resultSet,"./employe.xls");
+                    //selection de l'emplacement du fichier
+                    JFileChooser jFileChooser = new JFileChooser();
+                    int reponse = jFileChooser.showSaveDialog(null); //fichier a ouvrir
+
+                    File fichier = null;
+                    if(reponse == JFileChooser.APPROVE_OPTION){
+                         fichier = new File(jFileChooser.getSelectedFile().getAbsolutePath());
+                        System.out.println(fichier);
+                        CreateExcel createExcel = new CreateExcel(resultSet,fichier.getAbsolutePath());
+
+                        //vérifie si le fichier existe
+                        fichier = new File(jFileChooser.getSelectedFile().getAbsolutePath()+".xls");
+                        if(fichier.exists()){
+                            JOptionPane.showMessageDialog(null, "Export effectué"
+                                    , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
+                        }
+
+                    }
+
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
@@ -157,13 +167,35 @@ public class Fenetre extends JFrame {
                     ex.printStackTrace();
                 }
 
-                JOptionPane.showMessageDialog(null, "Export effectué"
-                        , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
+
 
             }
         });
+
     }
 
+    /**
+     * alimente les données d'une jtbable depuis la base principale
+     * @return
+     */
+    public Object[][] feedJtable(){
+        //affiche le contenu dans la jtable
+        ResultSet resultSet;
+        try {
+            resultSet = mysqliteDb.getAllMainDB();
+            int i = 0;
+            while (resultSet.next()){
+                for (int j = 0; j < mysqliteDb.getNomColonne(resultSet).size(); j++) {
+                    //ligne / colonnes
+                    data[i][j] = resultSet.getString(j+1);
+                }
+                i++;
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return data;
+    }
 
 
 }

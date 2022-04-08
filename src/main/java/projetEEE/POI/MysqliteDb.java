@@ -1,5 +1,6 @@
 package projetEEE.POI;
 
+import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class MysqliteDb {
             System.out.print("*******connection a la base existante*******");
             //créer un la base a cet emplacement
             conMainDb = DriverManager.getConnection("jdbc:sqlite:Maindb.db");
+            System.out.println();
         }
         else{
             //créer la base
@@ -60,7 +62,7 @@ public class MysqliteDb {
             conMainDb = DriverManager.getConnection("jdbc:sqlite:Maindb.db");
             Statement statement = conMainDb.createStatement();
             statement.executeUpdate(reqCreatedb);
-            System.out.println("*********réation d'une base*********");
+            System.out.println("*********création d'une base*********");
         }
     }
     /******************METHODE CRUD MAIN ***********************/

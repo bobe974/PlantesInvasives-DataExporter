@@ -70,7 +70,7 @@ public class CreateExcel {
             for(int k=0;k<nomColonne.size();k++){
                 cell = row.createCell(k, CellType.STRING);
                 //pour l'attribut chemin on ajoute l'hyperlien
-                if(k == 3){
+                if(k == 6){
                     HSSFHyperlink hlink1 = workbook.getCreationHelper().createHyperlink(HyperlinkType.FILE);
                     String path = resultSet.getString(k+1);
                     cell.setCellValue(path);
@@ -84,7 +84,7 @@ public class CreateExcel {
         }
 
         //chemin du fichier
-        File file = new File(destpath);
+        File file = new File(destpath+".xls");
         file.getParentFile().mkdirs();
 
         FileOutputStream outFile = null;
