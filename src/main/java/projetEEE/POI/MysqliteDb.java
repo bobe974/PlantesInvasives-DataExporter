@@ -138,6 +138,24 @@ public class MysqliteDb {
         }
     }
 
+    //recupere le resulset de la base ciblé
+    public ResultSet getResultset(String dbname,String req){
+        Connection connection = null;
+
+        try
+        {
+            //connection a une base existante
+            connection = DriverManager.getConnection("jdbc:sqlite:"+dbname);
+            Statement statement = connection.createStatement();
+            statement.setQueryTimeout(30);
+            rs = statement.executeQuery(req);
+
+        }catch (Exception e){
+            System.out.println(e);
+        }
+        return rs;
+    }
+
     //ajoute un champs dans la base principale
     public void insert(String etablissement, String nomPlante, String etat, String stade, String description, String path, String date, String type, String surface, String nb_indiv, String latitude ,String longitude, String remarques) throws SQLException {
         String sql = "INSERT INTO  Fiche (nom_etablissement,Nom_plante,etat,stade,description,chemin_fichier,DatePhoto,type,surface,nb_individu,latitude,longitude,remarques) \n" +

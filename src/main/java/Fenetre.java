@@ -15,216 +15,68 @@ import java.sql.SQLException;
 
 public class Fenetre extends JFrame {
 
-    private JPanel panneau;
-    private JTextArea jTextArea, jTextrdf, jtextsparql, jresultsparql;
-    private JTable jTable;
-    private  JList jList;
-    //créer le modèle qui  va contenir les appareils connectés
-    DefaultListModel<String> model = new DefaultListModel<>();
-    private JScrollPane scrollTable;
-    private  JButton btnTransfert, btnAdd, btnExport, btnSelectioner;
+    JTable jTable;
+    JScrollPane scrollTable;
+    private  JProgressBar progressBar;
 
-    /**************DATA************/
-    private MysqliteDb mysqliteDb;
-    //En-têtes pour JTable
+    ResultSet resultSet;
+    MysqliteDb mysqliteDb;
+    String req = "SELECT * FROM Fiche \n" +
+            "              INNER JOIN Photographie \n" +
+            "             ON Fiche.id_fiche = Photographie.id_photo\n" +
+            "             INNER JOIN Plante \n" +
+            "             ON Fiche.id_fiche = Plante.id_plante\n" +
+            "             INNER JOIN Lieu \n" +
+            "            ON Fiche.id_fiche = Lieu.id_lieu ";
+
+    //TODO modif column
     private String[] columns = new String[] {
             "Id_fiche","Etablissement","Nom_plante","État","Stade","Description","Photo","Date_photo",
-            "Type","Surface","Nb_individu","Latitude","Longitude","Remarques"
+            "Type","Surface","Nb_individu","Latitude","Longitude","Remarques","d","dd","ddd"
     };
 
     //données du jtable
-    private Object[][] data = new Object[2000][14];
+    private Object[][] data = new Object[2000][17];
 
-    /**************DATA************/
-
-    public static void main(String[] args) {
-        Fenetre window = new Fenetre();
-        window.setSize(830,600);
-        window.setVisible(true);
-        window.feedJtable();
-
-    }
-
-    public Fenetre() {
-        super("Projet EEE");
-        this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        //centrer la jframe
-        //récuperer la taille de l'écran
+    public  Fenetre(MysqliteDb mysqliteDb){
+        //frame de contextuelle
         Dimension tailleEcran = Toolkit.getDefaultToolkit().getScreenSize();
         int height = tailleEcran.height;
         int width = tailleEcran.width;
         //taille est un demi la longueur et l'hauteur
         setSize(width/2, height/2);
-        setLocationRelativeTo(null);
-        // créer un modèle vide
-        initialize();
-
+        setSize(700,400);
+        setLayout(new FlowLayout());
+        setLocationRelativeTo ( null );
+        this.mysqliteDb = mysqliteDb;
+        init();
     }
 
-    private void initialize() {
+    public  void init(){
 
-        //initialisation bdd
-        mysqliteDb = new MysqliteDb();
+        ResultSet resultset = mysqliteDb.getResultset("PlanteInvasives.sqlite",req);
+        data = feedJtable(resultset);
 
-        //panneau principal
-        panneau = new JPanel();
-        panneau.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20));
+        //        progressBar = new JProgressBar(0,1000);
+//        progressBar.setBounds(35,40,165,30);
+//        progressBar.setValue(0);
+//        progressBar.setStringPainted(true);
+//        frameProgress.add(progressBar);
 
-        //jtable
-        jTable = new JTable(data, columns);
+        JPanel panel = new JPanel();
+        jTable = new JTable(data,columns);
         scrollTable = new JScrollPane(jTable);
         scrollTable.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollTable.setPreferredSize(new Dimension(730,300));
-        panneau.add(scrollTable);
-
-        //Jlist
-        //recuperer tous les appareils
-//        MTPUtil mtpUtil = new MTPUtil();
-//        for (PortableDevice portableDevice : mtpUtil.getDevices()){
-//            portableDevice.open();
-//            model.addElement(portableDevice.getModel());
-//            portableDevice.close();
-//        }
-        jList = new JList(model);
-        panneau.add(jList);
-
-        //bouttons
-        btnSelectioner = new JButton("Selectionner");
-        panneau.add(btnSelectioner);
-        btnTransfert = new JButton("Récupérer les données");
-        panneau.add(btnTransfert);
-        btnAdd = new JButton("Ajouter des données");
-        panneau.add(btnAdd);
-        btnExport = new JButton("Exporter...");
-        panneau.add(btnExport);
-
-
-        //ajout fans le jpanel
-        add(panneau);
-
-
-        //event
-
-        btnSelectioner.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                    int index = jList.getSelectedIndex();
-                    String s = (String) jList.getSelectedValue();
-                    System.out.println("Value Selected: " + s);
-                    //transfert
-//                     PhoneToPc phoneToPc = new PhoneToPc();
-//                     //c:/Users/lacom/Downloads/projetEEE
-//                //TODO user qui choisi un emplacement system au premier lancement
-//                     phoneToPc.TransfertPhoto(s,System.getProperty("user.dir"));
-//                     phoneToPc.TransfertDb(s,System.getProperty("user.dir"));
-
-                     //vérifie si le fichier existe
-                File fichier = new File(System.getProperty("user.dir")+"/PlanteInvasives.sqlite");
-                //TODO copier les photos dans le meme dossier
-                if(fichier.exists()){
-                    JOptionPane.showMessageDialog(null, "Succes"
-                            , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
-                }
-
-
-            }
-        });
-        btnTransfert.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                // connection usb
-
-                //se connecte a une base et alimente la base principal
-                mysqliteDb.feedDb("PlanteInvasives.sqlite");
-
-                //affiche le contenu dans la jtable
-                data = feedJtable();
-                JOptionPane.showMessageDialog(null, "Données sauvegardées"
-                        , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
-            }
-        });
-
-        btnAdd.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //PhoneToPc phoneToPc = new PhoneToPc();
-                //phoneToPc.TransfertPhoto();
-                //phoneToPc.TransfertDb();
-//                if (panneau.isVisible()){
-//                    panneau.setVisible(false);
-//                }
-
-                JOptionPane.showMessageDialog(null, "Transfert effectué"
-                        , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
-            }
-        });
-
-        btnExport.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ResultSet resultSet = null;
-                try {
-                    resultSet = mysqliteDb.getAllMainDB();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-                ResultSet resultSet1 = null;
-                try {
-                    resultSet1 = mysqliteDb.getAllMainDB();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-                try {
-                    //selection de l'emplacement du fichier
-                    JFileChooser jFileChooser = new JFileChooser();
-                    int reponse = jFileChooser.showSaveDialog(null); //fichier a ouvrir
-
-                    File fichier = null;
-                    if(reponse == JFileChooser.APPROVE_OPTION){
-                         fichier = new File(jFileChooser.getSelectedFile().getAbsolutePath());
-                        System.out.println(fichier);
-                        CreateExcel createExcel = new CreateExcel(resultSet,fichier.getAbsolutePath());
-
-                        //vérifie si le fichier existe
-                        fichier = new File(jFileChooser.getSelectedFile().getAbsolutePath()+".xls");
-                        //TODO copier les photos dans le meme dossier
-                        if(fichier.exists()){
-                            JOptionPane.showMessageDialog(null, "Export effectué"
-                                    , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
-                        }
-
-                    }
-
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-//                try {
-//                    CreateCSV createCSV = new CreateCSV(resultSet1);
-//                } catch (SQLException ex) {
-//                    ex.printStackTrace();
-//                } catch (IOException ex) {
-//                    ex.printStackTrace();
-//                }
-
-                JOptionPane.showMessageDialog(null, "Export effectué"
-                        , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
-
-            }
-        });
+        panel.add(scrollTable);
+        add(panel);
     }
 
-    /**
-     * alimente les données d'une jtbable depuis la base principale
-     * @return
-     */
-    public Object[][] feedJtable(){
+    public Object[][] feedJtable(ResultSet resultSet){
         //affiche le contenu dans la jtable
-        ResultSet resultSet;
+
         try {
-            resultSet = mysqliteDb.getAllMainDB();
+            //resultSet = mysqliteDb.getAllMainDB();
             int i = 0;
             while (resultSet.next()){
                 for (int j = 0; j < mysqliteDb.getNomColonne(resultSet).size(); j++) {
@@ -239,5 +91,21 @@ public class Fenetre extends JFrame {
         return data;
     }
 
-
+    // fonction pour augmenter le progressBar
+    public void loop()
+    {
+        int i=0;
+        while(i <= 1000)
+        {
+            // remplit la barre
+            progressBar.setValue(i);
+            i = i + 10;
+            try
+            {
+                // retarder le thread
+                Thread.sleep(120);
+            }
+            catch(Exception e){}
+        }
+    }
 }

@@ -19,15 +19,13 @@ import javax.swing.plaf.nimbus.NimbusLookAndFeel;
  */
 public class MainFrame extends JFrame {
 
-
-    private JPanel panneau;
-    private JTextArea jTextArea, jTextrdf, jtextsparql, jresultsparql;
     private JTable jTable;
     private JList jList;
     //créer le modèle qui  va contenir les appareils connectés
     DefaultListModel<String> model = new DefaultListModel<>();
     private JScrollPane scrollTable;
-    private  JButton btnAggreger, btnExport, btnSelectioner;
+    private  JButton btnAggreger, btnExport, btnTransfert;
+
 
     /**************DATA************/
     private MysqliteDb mysqliteDb;
@@ -64,6 +62,8 @@ public class MainFrame extends JFrame {
         //initialisation bdd
         mysqliteDb = new MysqliteDb();
 
+        Fenetre fenetre = new Fenetre(mysqliteDb);
+        fenetre.setVisible(false);
 
         //panneau principal
         JPanel panneau= (JPanel) getContentPane();
@@ -122,9 +122,9 @@ public class MainFrame extends JFrame {
         jList.setBounds(10,40,150,200);
         devicesPanel.add(jList);
 
-        btnSelectioner = new JButton("Récupérer les données");
-        btnSelectioner.setBounds(10,300,170,40);
-        devicesPanel.add(btnSelectioner);
+        btnTransfert = new JButton("Récupérer les données");
+        btnTransfert.setBounds(10,300,170,40);
+        devicesPanel.add(btnTransfert);
 
         btnAggreger = new JButton("Agréger les données");
         btnAggreger.setBounds(10,350,170,40);
@@ -156,10 +156,11 @@ public class MainFrame extends JFrame {
 
         /*************************EVENT**************************/
 
-        btnSelectioner.addActionListener(new ActionListener() {
+        btnTransfert.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                fenetre.setVisible(true);
+                //loop();
                 int index = jList.getSelectedIndex();
                 String s = (String) jList.getSelectedValue();
                 System.out.println("Value Selected: " + s);
@@ -190,8 +191,14 @@ public class MainFrame extends JFrame {
                 //se connecte a une base et alimente la base principal
                 mysqliteDb.feedDb("PlanteInvasives.sqlite");
 
-                //affiche le contenu dans la jtable
-                data = feedJtable();
+                //affiche le contenu dans la jtable principale
+                try {
+                    ResultSet res = mysqliteDb.getAllMainDB();
+                    data = feedJtable(res);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+
                 JOptionPane.showMessageDialog(null, "Données sauvegardées"
                         , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
             }
@@ -271,7 +278,9 @@ public class MainFrame extends JFrame {
         MainFrame window = new MainFrame();
         window.setSize(1200,800);
         window.setVisible(true);
-        window.feedJtable();
+        MysqliteDb mysqliteDb = new MysqliteDb();
+        ResultSet resultSet = mysqliteDb.getAllMainDB();
+        window.feedJtable(resultSet);
     }
 
 
@@ -279,11 +288,11 @@ public class MainFrame extends JFrame {
      * alimente les données d'une jtbable depuis la base principale
      * @return
      */
-    public Object[][] feedJtable(){
+    public Object[][] feedJtable(ResultSet resultSet){
         //affiche le contenu dans la jtable
-        ResultSet resultSet;
+
         try {
-            resultSet = mysqliteDb.getAllMainDB();
+            //resultSet = mysqliteDb.getAllMainDB();
             int i = 0;
             while (resultSet.next()){
                 for (int j = 0; j < mysqliteDb.getNomColonne(resultSet).size(); j++) {
@@ -297,5 +306,8 @@ public class MainFrame extends JFrame {
         }
         return data;
     }
+
+
+
 
 }
