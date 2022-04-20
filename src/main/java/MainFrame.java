@@ -1,4 +1,5 @@
 
+import projetEEE.POI.CreateCSV;
 import projetEEE.POI.CreateExcel;
 import projetEEE.POI.MysqliteDb;
 
@@ -26,7 +27,7 @@ public class MainFrame extends JFrame {
     //créer le modèle qui  va contenir les appareils connectés
     DefaultListModel<String> model = new DefaultListModel<>();
     private JScrollPane scrollTable;
-    private  JButton btnTransfert, btnAdd, btnExport, btnSelectioner;
+    private  JButton btnAggreger, btnExport, btnSelectioner;
 
     /**************DATA************/
     private MysqliteDb mysqliteDb;
@@ -73,19 +74,27 @@ public class MainFrame extends JFrame {
         projectScrollPane.setPreferredSize( new Dimension( 200, 0 ) );
 
         // --- PARTIE PRINCIPALE JTABLE
+        JPanel mainPanel = new JPanel();
         jTable = new JTable(data, columns);
         scrollTable = new JScrollPane(jTable);
         scrollTable.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollTable.setPreferredSize(new Dimension(730,300));
 
+        mainPanel.add(scrollTable);
+
         // --- PARTIE EXPORT CSV XLS
         //bouttons
         JPanel jbottomPanel = new JPanel();
-        btnTransfert = new JButton("Récupérer les données");
-        jbottomPanel.add(btnTransfert);
-        btnAdd = new JButton("Ajouter des données");
-        jbottomPanel.add(btnAdd);
+        jbottomPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10,0));
+        // créer une case à cocher
+        JCheckBox checkxls = new JCheckBox("format .xls");
+
+        JCheckBox checkcsv = new JCheckBox("format .csv");
+
+        jbottomPanel.add(checkxls);
+        jbottomPanel.add(checkcsv);
         btnExport = new JButton("Exporter...");
+
         jbottomPanel.add(btnExport);
 
         JScrollPane bottompanel = new JScrollPane( jbottomPanel );
@@ -100,20 +109,26 @@ public class MainFrame extends JFrame {
 //            portableDevice.close();
 //        }
         JPanel devicesPanel = new JPanel();
-        devicesPanel.setLayout(new BoxLayout(devicesPanel,BoxLayout.Y_AXIS));
+        devicesPanel.setLayout(null);
+        devicesPanel.setPreferredSize(new Dimension(170,100));
+
         JLabel jLabel = new JLabel("Appareils connectés");
+        jLabel.setBounds(25,1,150,40);
         devicesPanel.add(jLabel);
-        //espace
-        devicesPanel.add(Box.createRigidArea(new Dimension(0, 25)));
+
         model.addElement("galaxy  s9");
         model.addElement("iphone 2");
         jList = new JList(model);
-
-
+        jList.setBounds(10,40,150,200);
         devicesPanel.add(jList);
-        btnSelectioner = new JButton("Selectionner");
+
+        btnSelectioner = new JButton("Récupérer les données");
+        btnSelectioner.setBounds(10,300,170,40);
         devicesPanel.add(btnSelectioner);
 
+        btnAggreger = new JButton("Agréger les données");
+        btnAggreger.setBounds(10,350,170,40);
+        devicesPanel.add(btnAggreger);
 
         JScrollPane rightpanel = new JScrollPane( devicesPanel);
 
@@ -166,7 +181,7 @@ public class MainFrame extends JFrame {
 
             }
         });
-        btnTransfert.addActionListener(new ActionListener() {
+        btnAggreger.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
@@ -182,61 +197,59 @@ public class MainFrame extends JFrame {
             }
         });
 
-        btnAdd.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //PhoneToPc phoneToPc = new PhoneToPc();
-                //phoneToPc.TransfertPhoto();
-                //phoneToPc.TransfertDb();
-//                if (panneau.isVisible()){
-//                    panneau.setVisible(false);
-//                }
-
-                JOptionPane.showMessageDialog(null, "Transfert effectué"
-                        , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
-            }
-        });
 
         btnExport.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                ResultSet resultSet = null;
-                try {
-                    resultSet = mysqliteDb.getAllMainDB();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-                ResultSet resultSet1 = null;
-                try {
-                    resultSet1 = mysqliteDb.getAllMainDB();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-                try {
-                    //selection de l'emplacement du fichier
-                    JFileChooser jFileChooser = new JFileChooser();
-                    int reponse = jFileChooser.showSaveDialog(null); //fichier a ouvrir
+                //vérifie si les cases sont selectionné
+                if(!(checkcsv.isSelected() || checkxls.isSelected())){
+                    JOptionPane.showMessageDialog(null, "Veuillez choisir le format d'exportation"
+                            , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
+                }else{
+                    ResultSet resultSet = null;
+                    try {
+                        resultSet = mysqliteDb.getAllMainDB();
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                    ResultSet resultSet1 = null;
+                    try {
+                        resultSet1 = mysqliteDb.getAllMainDB();
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                    try {
+                        //selection de l'emplacement du fichier
+                        JFileChooser jFileChooser = new JFileChooser();
+                        int reponse = jFileChooser.showSaveDialog(null); //fichier a ouvrir
 
-                    File fichier = null;
-                    if(reponse == JFileChooser.APPROVE_OPTION){
-                        fichier = new File(jFileChooser.getSelectedFile().getAbsolutePath());
-                        System.out.println(fichier);
-                        CreateExcel createExcel = new CreateExcel(resultSet,fichier.getAbsolutePath());
+                        File fichier = null;
+                        if(reponse == JFileChooser.APPROVE_OPTION){
+                            fichier = new File(jFileChooser.getSelectedFile().getAbsolutePath());
+                            System.out.println(fichier);
+                            if(checkxls.isSelected()){
+                                //export xls
+                                CreateExcel createExcel = new CreateExcel(resultSet,fichier.getAbsolutePath());
+                            }
+                            if(checkcsv.isSelected()){
+                                //TODO EXPORT CSV
+                                //CreateCSV createCSV = new CreateCSV(resultSet);
+                            }
 
-                        //vérifie si le fichier existe
-                        fichier = new File(jFileChooser.getSelectedFile().getAbsolutePath()+".xls");
-                        //TODO copier les photos dans le meme dossier
-                        if(fichier.exists()){
-                            JOptionPane.showMessageDialog(null, "Export effectué"
-                                    , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
+                            //vérifie si le fichier existe
+                            fichier = new File(jFileChooser.getSelectedFile().getAbsolutePath()+".xls");
+                            //TODO copier les photos dans le meme dossier
+                            if(fichier.exists()){
+                                JOptionPane.showMessageDialog(null, "Export effectué"
+                                        , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
+                            }
+
                         }
 
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
                     }
-
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
 //                try {
 //                    CreateCSV createCSV = new CreateCSV(resultSet1);
 //                } catch (SQLException ex) {
@@ -244,9 +257,8 @@ public class MainFrame extends JFrame {
 //                } catch (IOException ex) {
 //                    ex.printStackTrace();
 //                }
+                }
 
-                JOptionPane.showMessageDialog(null, "Export effectué"
-                        , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
 
             }
         });
@@ -257,7 +269,7 @@ public class MainFrame extends JFrame {
 
         UIManager.setLookAndFeel( new NimbusLookAndFeel());
         MainFrame window = new MainFrame();
-        window.setSize(830,600);
+        window.setSize(1200,800);
         window.setVisible(true);
         window.feedJtable();
     }
