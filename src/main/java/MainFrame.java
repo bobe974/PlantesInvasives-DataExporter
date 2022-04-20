@@ -67,25 +67,20 @@ public class MainFrame extends JFrame {
         //panneau principal
         JPanel panneau= (JPanel) getContentPane();
 
-        // --- L'explorateur de projet
+        // --- EXPLORATEUR DE PROJET
         JTree projectExplorerTree = new JTree();
         JScrollPane projectScrollPane = new JScrollPane( projectExplorerTree );
         projectScrollPane.setPreferredSize( new Dimension( 200, 0 ) );
 
-        // --- compartiment principal jtable
+        // --- PARTIE PRINCIPALE JTABLE
         jTable = new JTable(data, columns);
         scrollTable = new JScrollPane(jTable);
         scrollTable.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollTable.setPreferredSize(new Dimension(730,300));
 
-
-
-        // finalisé les données csv xls
-
+        // --- PARTIE EXPORT CSV XLS
         //bouttons
         JPanel jbottomPanel = new JPanel();
-        btnSelectioner = new JButton("Selectionner");
-        jbottomPanel.add(btnSelectioner);
         btnTransfert = new JButton("Récupérer les données");
         jbottomPanel.add(btnTransfert);
         btnAdd = new JButton("Ajouter des données");
@@ -95,8 +90,7 @@ public class MainFrame extends JFrame {
 
         JScrollPane bottompanel = new JScrollPane( jbottomPanel );
 
-        // --- liste des appareil connecté
-
+        // --- PARTIE APPAREIL CONNECTE
         //Jlist
         //recuperer tous les appareils
 //        MTPUtil mtpUtil = new MTPUtil();
@@ -105,11 +99,25 @@ public class MainFrame extends JFrame {
 //            model.addElement(portableDevice.getModel());
 //            portableDevice.close();
 //        }
+        JPanel devicesPanel = new JPanel();
+        devicesPanel.setLayout(new BoxLayout(devicesPanel,BoxLayout.Y_AXIS));
+        JLabel jLabel = new JLabel("Appareils connectés");
+        devicesPanel.add(jLabel);
+        //espace
+        devicesPanel.add(Box.createRigidArea(new Dimension(0, 25)));
+        model.addElement("galaxy  s9");
+        model.addElement("iphone 2");
         jList = new JList(model);
-        JScrollPane rightpanel = new JScrollPane( jList );
 
 
-        // --- Et maintenant on assemble le tout avec de JSplitPane ---
+        devicesPanel.add(jList);
+        btnSelectioner = new JButton("Selectionner");
+        devicesPanel.add(btnSelectioner);
+
+
+        JScrollPane rightpanel = new JScrollPane( devicesPanel);
+
+        // --- AJOUT
         JSplitPane documentSplitPane = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT, scrollTable, rightpanel );
         documentSplitPane.setResizeWeight( 0.8 );
@@ -131,7 +139,7 @@ public class MainFrame extends JFrame {
         // Pour changer un composant dans le JSplitPane après sa construction
         // setTopComponent, setBottomComponent, setLeftComponent, setRightComponent
 
-        //event
+        /*************************EVENT**************************/
 
         btnSelectioner.addActionListener(new ActionListener() {
             @Override

@@ -1,6 +1,6 @@
-import Transfert.MTPUtil;
-import Transfert.PhoneToPc;
-import jmtp.PortableDevice;
+
+//import Transfert.PhoneToPc;
+//import jmtp.PortableDevice;
 import projetEEE.POI.CreateExcel;
 import projetEEE.POI.MysqliteDb;
 
@@ -79,12 +79,12 @@ public class Fenetre extends JFrame {
 
         //Jlist
         //recuperer tous les appareils
-        MTPUtil mtpUtil = new MTPUtil();
-        for (PortableDevice portableDevice : mtpUtil.getDevices()){
-            portableDevice.open();
-            model.addElement(portableDevice.getModel());
-            portableDevice.close();
-        }
+//        MTPUtil mtpUtil = new MTPUtil();
+//        for (PortableDevice portableDevice : mtpUtil.getDevices()){
+//            portableDevice.open();
+//            model.addElement(portableDevice.getModel());
+//            portableDevice.close();
+//        }
         jList = new JList(model);
         panneau.add(jList);
 
@@ -113,11 +113,11 @@ public class Fenetre extends JFrame {
                     String s = (String) jList.getSelectedValue();
                     System.out.println("Value Selected: " + s);
                     //transfert
-                     PhoneToPc phoneToPc = new PhoneToPc();
-                     //c:/Users/lacom/Downloads/projetEEE
-                //TODO user qui choisi un emplacement system au premier lancement
-                     phoneToPc.TransfertPhoto(s,System.getProperty("user.dir"));
-                     phoneToPc.TransfertDb(s,System.getProperty("user.dir"));
+//                     PhoneToPc phoneToPc = new PhoneToPc();
+//                     //c:/Users/lacom/Downloads/projetEEE
+//                //TODO user qui choisi un emplacement system au premier lancement
+//                     phoneToPc.TransfertPhoto(s,System.getProperty("user.dir"));
+//                     phoneToPc.TransfertDb(s,System.getProperty("user.dir"));
 
                      //vérifie si le fichier existe
                 File fichier = new File(System.getProperty("user.dir")+"/PlanteInvasives.sqlite");
