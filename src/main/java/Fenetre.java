@@ -42,6 +42,7 @@ public class Fenetre extends JFrame {
         //frame de contextuelle
         super("Apercu des données de l'appareil");
         Dimension tailleEcran = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         int height = tailleEcran.height;
         int width = tailleEcran.width;
         //taille est un demi la longueur et l'hauteur
@@ -50,7 +51,7 @@ public class Fenetre extends JFrame {
         setLayout(new FlowLayout());
         setLocationRelativeTo ( null );
         this.mysqliteDb = mysqliteDb;
-        init();
+        //init();
     }
 
     public  void init(){

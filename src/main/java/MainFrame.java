@@ -1,5 +1,7 @@
 
-import projetEEE.POI.CreateCSV;
+import Transfert.MTPUtil;
+import Transfert.PhoneToPc;
+import jmtp.PortableDevice;
 import projetEEE.POI.CreateExcel;
 import projetEEE.POI.MysqliteDb;
 
@@ -24,11 +26,11 @@ public class MainFrame extends JFrame {
     //créer le modèle qui  va contenir les appareils connectés
     DefaultListModel<String> model = new DefaultListModel<>();
     private JScrollPane scrollTable;
-    private  JButton btnAggreger, btnExport, btnTransfert;
+    private  JButton btnAggreger, btnExport, btnTransfert, btnRefresh;
 
 
     /**************DATA************/
-    private static MysqliteDb mysqliteDb = new MysqliteDb();
+    private static MysqliteDb mysqliteDb;
     //En-têtes pour JTable
     private String[] columns = new String[] {
             "Id_fiche","Etablissement","Nom_plante","État","Stade","Description","Photo","Date_photo",
@@ -60,6 +62,7 @@ public class MainFrame extends JFrame {
     private void initialize() {
 
         //initialisation bdd
+        mysqliteDb = new MysqliteDb();
 
         Fenetre fenetre = new Fenetre(mysqliteDb);
         fenetre.setVisible(false);
@@ -100,13 +103,7 @@ public class MainFrame extends JFrame {
 
         // --- PARTIE APPAREIL CONNECTE
         //Jlist
-        //recuperer tous les appareils
-//        MTPUtil mtpUtil = new MTPUtil();
-//        for (PortableDevice portableDevice : mtpUtil.getDevices()){
-//            portableDevice.open();
-//            model.addElement(portableDevice.getModel());
-//            portableDevice.close();
-//        }
+        feedJlist();
         JPanel devicesPanel = new JPanel();
         devicesPanel.setLayout(null);
         devicesPanel.setPreferredSize(new Dimension(170,100));
@@ -114,13 +111,14 @@ public class MainFrame extends JFrame {
         JLabel jLabel = new JLabel("Appareils connectés");
         jLabel.setBounds(25,1,150,40);
         devicesPanel.add(jLabel);
-
-        model.addElement("galaxy  s9");
-        model.addElement("iphone 2");
+        //espace
+        devicesPanel.add(Box.createRigidArea(new Dimension(0, 25)));
         jList = new JList(model);
         jList.setBounds(10,40,150,200);
         devicesPanel.add(jList);
-
+        btnRefresh = new JButton("Actualiser");
+        btnRefresh.setBounds(40,250,100,20);
+        devicesPanel.add(btnRefresh);
         btnTransfert = new JButton("Récupérer les données");
         btnTransfert.setBounds(10,300,170,40);
         devicesPanel.add(btnTransfert);
@@ -147,28 +145,30 @@ public class MainFrame extends JFrame {
 
         getContentPane().add(mainSplitPane);
 
-        // Pour changer la taille d'un séperateur de panneaux
-        // mainSplitPane.setDividerSize( 100 );        // Bof
-
-        // Pour changer un composant dans le JSplitPane après sa construction
-        // setTopComponent, setBottomComponent, setLeftComponent, setRightComponent
-
         /*************************EVENT**************************/
+
+        btnRefresh.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                model.clear();
+               feedJlist();
+                jList.repaint();
+            }
+        });
 
         btnTransfert.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                fenetre.setVisible(true);
                 //loop();
                 int index = jList.getSelectedIndex();
                 String s = (String) jList.getSelectedValue();
                 System.out.println("Value Selected: " + s);
                 //transfert
-//                     PhoneToPc phoneToPc = new PhoneToPc();
-//                     //c:/Users/lacom/Downloads/projetEEE
+                     PhoneToPc phoneToPc = new PhoneToPc();
+                     //c:/Users/lacom/Downloads/projetEEE
 //                //TODO user qui choisi un emplacement system au premier lancement
-//                     phoneToPc.TransfertPhoto(s,System.getProperty("user.dir"));
-//                     phoneToPc.TransfertDb(s,System.getProperty("user.dir"));
+                     phoneToPc.TransfertPhoto(s,System.getProperty("user.dir"));
+                     phoneToPc.TransfertDb(s,System.getProperty("user.dir"));
 
                 //vérifie si le fichier existe
                 File fichier = new File(System.getProperty("user.dir")+"/PlanteInvasives.sqlite");
@@ -178,6 +178,8 @@ public class MainFrame extends JFrame {
                             , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
                 }
 
+                fenetre.setVisible(true);
+                fenetre.init();
 
             }
         });
@@ -315,6 +317,15 @@ public class MainFrame extends JFrame {
             jTable.repaint();
         } catch (SQLException ex) {
             ex.printStackTrace();
+        }
+    }
+    public void feedJlist(){
+        //recuperer tous les appareils
+        MTPUtil mtpUtil = new MTPUtil();
+        for (PortableDevice portableDevice : mtpUtil.getDevices()){
+            portableDevice.open();
+            model.addElement(portableDevice.getModel());
+            portableDevice.close();
         }
     }
 
