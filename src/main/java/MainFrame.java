@@ -1,7 +1,7 @@
 
-//import Transfert.MTPUtil;
-//import Transfert.PhoneToPc;
-//import jmtp.PortableDevice;
+import Transfert.MTPUtil;
+import Transfert.PhoneToPc;
+import jmtp.PortableDevice;
 import projetEEE.POI.CreateExcel;
 import projetEEE.POI.MysqliteDb;
 
@@ -22,13 +22,15 @@ import javax.swing.plaf.nimbus.NimbusLookAndFeel;
  * qui ressemble (sur quelques points, bien entendu) à l'IDE Eclipse.
  */
 public class MainFrame extends JFrame {
-
+    
     public static JTable jTable;
     private JList jList;
+    //chemin des fichiers de l'app
+    final String PATH_APP = System.getProperty("user.dir") ;
     //créer le modèle qui  va contenir les appareils connectés
     DefaultListModel<String> model = new DefaultListModel<>();
     private JScrollPane scrollTable;
-    private  JButton btnAggreger, btnExport, btnTransfert, btnRefresh;
+    private  JButton  btnExport, btnTransfert, btnRefresh;
 
 
     /**************DATA************/
@@ -105,7 +107,7 @@ public class MainFrame extends JFrame {
 
         // --- PARTIE APPAREIL CONNECTE
         //Jlist
-//        feedJlist();
+        feedJlist();
         JPanel devicesPanel = new JPanel();
         devicesPanel.setLayout(null);
         devicesPanel.setPreferredSize(new Dimension(170,100));
@@ -124,10 +126,6 @@ public class MainFrame extends JFrame {
         btnTransfert = new JButton("Récupérer les données");
         btnTransfert.setBounds(10,300,170,40);
         devicesPanel.add(btnTransfert);
-
-        btnAggreger = new JButton("Agréger les données");
-        btnAggreger.setBounds(10,350,170,40);
-        devicesPanel.add(btnAggreger);
 
         JScrollPane rightpanel = new JScrollPane( devicesPanel);
 
@@ -153,7 +151,7 @@ public class MainFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 model.clear();
-//               feedJlist();
+                feedJlist();
                 jList.repaint();
             }
         });
@@ -166,14 +164,14 @@ public class MainFrame extends JFrame {
                 String s = (String) jList.getSelectedValue();
                 System.out.println("Value Selected: " + s);
                 //transfert
-//                     PhoneToPc phoneToPc = new PhoneToPc();
-                     //c:/Users/lacom/Downloads/projetEEE
-//                //TODO user qui choisi un emplacement system au premier lancement
-//                     phoneToPc.TransfertPhoto(s,System.getProperty("user.dir"));
-//                     phoneToPc.TransfertDb(s,System.getProperty("user.dir"));
+
+                     //TODO user qui choisi un emplacement system au premier lancement
+                     PhoneToPc phoneToPc = new PhoneToPc();
+                     phoneToPc.TransfertPhoto(s,PATH_APP);
+                     phoneToPc.TransfertDb(s,PATH_APP);
 
                 //vérifie si le fichier existe
-                File fichier = new File(System.getProperty("user.dir")+"/PlanteInvasives.sqlite");
+                File fichier = new File(PATH_APP+"/PlanteInvasives.sqlite");
                 //TODO copier les photos dans le meme dossier
                 if(fichier.exists()){
                     JOptionPane.showMessageDialog(null, "Succes"
@@ -185,28 +183,6 @@ public class MainFrame extends JFrame {
 
             }
         });
-        btnAggreger.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                  jTable.repaint();
-//                // connection usb
-//
-//                //se connecte a une base et alimente la base principal
-//                mysqliteDb.feedDb("PlanteInvasives.sqlite");
-//
-//                //affiche le contenu dans la jtable principale
-//                try {
-//                    ResultSet res = mysqliteDb.getAllMainDB();
-//                    data = feedJtable(res);
-//                } catch (SQLException ex) {
-//                    ex.printStackTrace();
-//                }
-//
-//                JOptionPane.showMessageDialog(null, "Données sauvegardées"
-//                        , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
-            }
-        });
-
 
         btnExport.addActionListener(new ActionListener() {
             @Override
@@ -244,7 +220,7 @@ public class MainFrame extends JFrame {
                                 //copie des images au meme endroit que le fichier xls
                                 //TODO FICHER RACINE DE L'APP
                                 System.out.println(fichier.getParent());
-                                copyAllByExtension("./",fichier.getParent(),".jpg");
+                                copyAllByExtension(PATH_APP,fichier.getParent(),".jpg");
                             }
                             if(checkcsv.isSelected()){
                                 //TODO EXPORT CSV
@@ -289,7 +265,7 @@ public class MainFrame extends JFrame {
         MysqliteDb mysqliteDb = new MysqliteDb();
         ResultSet resultSet = mysqliteDb.getAllMainDB();
         window.feedJtable(resultSet);
-        //window.copyAllByExtension("./","/Users/etienne/Desktop/",".jpg");
+
     }
 
 
@@ -359,15 +335,15 @@ public class MainFrame extends JFrame {
             }
         }
     }
-//    public void feedJlist(){
-//        //recuperer tous les appareils
-//        MTPUtil mtpUtil = new MTPUtil();
-//        for (PortableDevice portableDevice : mtpUtil.getDevices()){
-//            portableDevice.open();
-//            model.addElement(portableDevice.getModel());
-//            portableDevice.close();
-//        }
-//    }
+    public void feedJlist(){
+        //recuperer tous les appareils
+        MTPUtil mtpUtil = new MTPUtil();
+        for (PortableDevice portableDevice : mtpUtil.getDevices()){
+            portableDevice.open();
+            model.addElement(portableDevice.getModel());
+            portableDevice.close();
+        }
+    }
 
 
 
