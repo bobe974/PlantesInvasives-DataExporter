@@ -1,7 +1,7 @@
 
-import Transfert.MTPUtil;
-import Transfert.PhoneToPc;
-import jmtp.PortableDevice;
+//import Transfert.MTPUtil;
+//import Transfert.PhoneToPc;
+//import jmtp.PortableDevice;
 import projetEEE.POI.CreateExcel;
 import projetEEE.POI.MysqliteDb;
 
@@ -9,6 +9,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -103,7 +105,7 @@ public class MainFrame extends JFrame {
 
         // --- PARTIE APPAREIL CONNECTE
         //Jlist
-        feedJlist();
+//        feedJlist();
         JPanel devicesPanel = new JPanel();
         devicesPanel.setLayout(null);
         devicesPanel.setPreferredSize(new Dimension(170,100));
@@ -151,7 +153,7 @@ public class MainFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 model.clear();
-               feedJlist();
+//               feedJlist();
                 jList.repaint();
             }
         });
@@ -164,11 +166,11 @@ public class MainFrame extends JFrame {
                 String s = (String) jList.getSelectedValue();
                 System.out.println("Value Selected: " + s);
                 //transfert
-                     PhoneToPc phoneToPc = new PhoneToPc();
+//                     PhoneToPc phoneToPc = new PhoneToPc();
                      //c:/Users/lacom/Downloads/projetEEE
 //                //TODO user qui choisi un emplacement system au premier lancement
-                     phoneToPc.TransfertPhoto(s,System.getProperty("user.dir"));
-                     phoneToPc.TransfertDb(s,System.getProperty("user.dir"));
+//                     phoneToPc.TransfertPhoto(s,System.getProperty("user.dir"));
+//                     phoneToPc.TransfertDb(s,System.getProperty("user.dir"));
 
                 //vérifie si le fichier existe
                 File fichier = new File(System.getProperty("user.dir")+"/PlanteInvasives.sqlite");
@@ -239,6 +241,10 @@ public class MainFrame extends JFrame {
                             if(checkxls.isSelected()){
                                 //export xls
                                 CreateExcel createExcel = new CreateExcel(resultSet,fichier.getAbsolutePath());
+                                //copie des images au meme endroit que le fichier xls
+                                //TODO FICHER RACINE DE L'APP
+                                System.out.println(fichier.getParent());
+                                copyAllByExtension("./",fichier.getParent(),".jpg");
                             }
                             if(checkcsv.isSelected()){
                                 //TODO EXPORT CSV
@@ -255,7 +261,7 @@ public class MainFrame extends JFrame {
 
                         }
 
-                    } catch (SQLException ex) {
+                    } catch (SQLException | IOException ex) {
                         ex.printStackTrace();
                     }
 //                try {
@@ -283,6 +289,7 @@ public class MainFrame extends JFrame {
         MysqliteDb mysqliteDb = new MysqliteDb();
         ResultSet resultSet = mysqliteDb.getAllMainDB();
         window.feedJtable(resultSet);
+        //window.copyAllByExtension("./","/Users/etienne/Desktop/",".jpg");
     }
 
 
@@ -319,15 +326,48 @@ public class MainFrame extends JFrame {
             ex.printStackTrace();
         }
     }
-    public void feedJlist(){
-        //recuperer tous les appareils
-        MTPUtil mtpUtil = new MTPUtil();
-        for (PortableDevice portableDevice : mtpUtil.getDevices()){
-            portableDevice.open();
-            model.addElement(portableDevice.getModel());
-            portableDevice.close();
+
+    /**
+     * copie/colle tout les fichiers avec la meme extension
+     * @param pathtarget
+     * @param pathdest
+     * @param extension
+     * @throws IOException
+     */
+    public void copyAllByExtension(String pathtarget, String pathdest, String extension) throws IOException {
+        File dir  = new File(pathtarget);
+        File[] liste = dir.listFiles();
+        for(File item : liste){
+            if(item.isFile())
+            {
+
+                if (item.getName().toString().endsWith(extension)) {
+                    File file = new File(pathdest + "/" + item.getName().toString());
+                    System.out.println(file.getAbsolutePath());
+                    System.out.format("Nom du fichier: %s%n", item.getName());
+                    //copié coller a la destination
+                    Files.copy(new File(item.getName().toString()).toPath(),file.toPath());
+                }
+
+            }
+            else if(item.isDirectory())
+            {
+                if (item.getName().toString().endsWith(".jpg")) {
+                    System.out.format("Nom du fichier: %s%n", item.getName());
+                }
+
+            }
         }
     }
+//    public void feedJlist(){
+//        //recuperer tous les appareils
+//        MTPUtil mtpUtil = new MTPUtil();
+//        for (PortableDevice portableDevice : mtpUtil.getDevices()){
+//            portableDevice.open();
+//            model.addElement(portableDevice.getModel());
+//            portableDevice.close();
+//        }
+//    }
 
 
 
