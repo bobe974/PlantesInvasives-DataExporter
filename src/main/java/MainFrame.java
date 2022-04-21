@@ -2,6 +2,7 @@
 import Transfert.MTPUtil;
 import Transfert.PhoneToPc;
 import jmtp.PortableDevice;
+import projetEEE.POI.CreateCSV;
 import projetEEE.POI.CreateExcel;
 import projetEEE.POI.MysqliteDb;
 
@@ -224,7 +225,9 @@ public class MainFrame extends JFrame {
                             }
                             if(checkcsv.isSelected()){
                                 //TODO EXPORT CSV
-                                //CreateCSV createCSV = new CreateCSV(resultSet);
+                                System.out.println("absolute choose name : " + fichier.getAbsolutePath());
+                                CreateCSV createCSV = new CreateCSV(resultSet1,fichier.getAbsolutePath());
+
                             }
 
                             //vérifie si le fichier existe

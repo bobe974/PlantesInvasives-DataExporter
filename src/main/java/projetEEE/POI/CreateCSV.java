@@ -12,15 +12,16 @@ import java.util.ArrayList;
 
 public class CreateCSV {
 
-    public CreateCSV(ResultSet resultSet) throws SQLException, IOException {
+    public CreateCSV(ResultSet resultSet, String path) throws SQLException, IOException {
         // File path and name.
-        File filePath = new File("/Users/etienne/Desktop");
-        String fileName = filePath.toString() + "/personexport.csv";
+        File filePath = new File(path +".csv");
+        String fileName = filePath.toString();
+        System.out.println("fileName : " + fileName);
         ArrayList<String> nomColonne;
         System.out.println(fileName);
 
         // Check to see if the file path exists.
-        if (filePath.isDirectory()) {
+
             try {
                 ResultSet results  = resultSet;
                 nomColonne =getNomColonne(resultSet);
@@ -29,7 +30,7 @@ public class CreateCSV {
                 BufferedWriter writer = Files.newBufferedWriter(Paths.get(fileName));
 
                 // Add table headers to CSV file.
-                CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
+                CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withDelimiter(';')
                         .withHeader(results.getMetaData()).withQuoteMode(QuoteMode.ALL));
 
                 // Add data rows to CSV file.
@@ -79,13 +80,7 @@ public class CreateCSV {
 
             }
 
-        } else {
 
-            // Display a message stating file path does not exist and exit.
-            System.out.println("File path does not exist.");
-            System.exit(0);
-
-        }
     }
 
     /**
