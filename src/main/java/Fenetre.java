@@ -40,12 +40,13 @@ public class Fenetre extends JFrame {
 
     public  Fenetre(MysqliteDb mysqliteDb){
         //frame de contextuelle
+        super("Apercu des données de l'appareil");
         Dimension tailleEcran = Toolkit.getDefaultToolkit().getScreenSize();
         int height = tailleEcran.height;
         int width = tailleEcran.width;
         //taille est un demi la longueur et l'hauteur
         setSize(width/2, height/2);
-        setSize(700,400);
+        setSize(760,400);
         setLayout(new FlowLayout());
         setLocationRelativeTo ( null );
         this.mysqliteDb = mysqliteDb;
@@ -64,12 +65,46 @@ public class Fenetre extends JFrame {
 //        frameProgress.add(progressBar);
 
         JPanel panel = new JPanel();
+        JPanel panel2 = new JPanel();
+        JButton btnAggreger = new JButton("Agréger les données");
+        JButton btncancel = new JButton("Annuler");
         jTable = new JTable(data,columns);
         scrollTable = new JScrollPane(jTable);
         scrollTable.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollTable.setPreferredSize(new Dimension(730,300));
         panel.add(scrollTable);
-        add(panel);
+        panel2.add(btncancel);
+        panel2.add(btnAggreger);
+        // créer un séparateur de panneau
+        JSplitPane sep = new JSplitPane(SwingConstants.VERTICAL, panel, panel2);
+
+        // définir l'orientation du séparateur
+        sep.setOrientation(SwingConstants.HORIZONTAL);
+        add(sep);
+
+
+        /************EVENT*********/
+
+        btnAggreger.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                // connection usb
+
+                //se connecte a une base et alimente la base principal
+                mysqliteDb.feedDb("PlanteInvasives.sqlite");
+
+                //affiche le contenu dans la jtable principale
+                MainFrame.updateJtable();
+            }
+        });
+
+        btncancel.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
     }
 
     public Object[][] feedJtable(ResultSet resultSet){

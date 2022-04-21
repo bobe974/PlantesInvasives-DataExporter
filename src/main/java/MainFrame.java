@@ -19,7 +19,7 @@ import javax.swing.plaf.nimbus.NimbusLookAndFeel;
  */
 public class MainFrame extends JFrame {
 
-    private JTable jTable;
+    public static JTable jTable;
     private JList jList;
     //créer le modèle qui  va contenir les appareils connectés
     DefaultListModel<String> model = new DefaultListModel<>();
@@ -28,7 +28,7 @@ public class MainFrame extends JFrame {
 
 
     /**************DATA************/
-    private MysqliteDb mysqliteDb;
+    private static MysqliteDb mysqliteDb = new MysqliteDb();
     //En-têtes pour JTable
     private String[] columns = new String[] {
             "Id_fiche","Etablissement","Nom_plante","État","Stade","Description","Photo","Date_photo",
@@ -36,7 +36,7 @@ public class MainFrame extends JFrame {
     };
 
     //données du jtable
-    private Object[][] data = new Object[2000][14];
+    public static Object[][] data = new Object[2000][14];
 
     /**************DATA************/
 
@@ -52,7 +52,7 @@ public class MainFrame extends JFrame {
         setSize(width/2, height/2);
         setLocationRelativeTo(null);
         // créer un modèle vide
-        initialize();
+        //initialize();
 
     }
 
@@ -60,7 +60,6 @@ public class MainFrame extends JFrame {
     private void initialize() {
 
         //initialisation bdd
-        mysqliteDb = new MysqliteDb();
 
         Fenetre fenetre = new Fenetre(mysqliteDb);
         fenetre.setVisible(false);
@@ -185,22 +184,22 @@ public class MainFrame extends JFrame {
         btnAggreger.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                // connection usb
-
-                //se connecte a une base et alimente la base principal
-                mysqliteDb.feedDb("PlanteInvasives.sqlite");
-
-                //affiche le contenu dans la jtable principale
-                try {
-                    ResultSet res = mysqliteDb.getAllMainDB();
-                    data = feedJtable(res);
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-
-                JOptionPane.showMessageDialog(null, "Données sauvegardées"
-                        , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
+                  jTable.repaint();
+//                // connection usb
+//
+//                //se connecte a une base et alimente la base principal
+//                mysqliteDb.feedDb("PlanteInvasives.sqlite");
+//
+//                //affiche le contenu dans la jtable principale
+//                try {
+//                    ResultSet res = mysqliteDb.getAllMainDB();
+//                    data = feedJtable(res);
+//                } catch (SQLException ex) {
+//                    ex.printStackTrace();
+//                }
+//
+//                JOptionPane.showMessageDialog(null, "Données sauvegardées"
+//                        , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
             }
         });
 
@@ -276,6 +275,7 @@ public class MainFrame extends JFrame {
 
         UIManager.setLookAndFeel( new NimbusLookAndFeel());
         MainFrame window = new MainFrame();
+        window.initialize();
         window.setSize(1200,800);
         window.setVisible(true);
         MysqliteDb mysqliteDb = new MysqliteDb();
@@ -288,7 +288,7 @@ public class MainFrame extends JFrame {
      * alimente les données d'une jtbable depuis la base principale
      * @return
      */
-    public Object[][] feedJtable(ResultSet resultSet){
+    public static Object[][] feedJtable(ResultSet resultSet){
         //affiche le contenu dans la jtable
 
         try {
@@ -306,6 +306,18 @@ public class MainFrame extends JFrame {
         }
         return data;
     }
+
+    public static void updateJtable(){
+        //affiche le contenu dans la jtable principale
+        try {
+            ResultSet res = mysqliteDb.getAllMainDB();
+            data = feedJtable(res);
+            jTable.repaint();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
 
 
 
