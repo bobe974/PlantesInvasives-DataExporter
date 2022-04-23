@@ -169,7 +169,11 @@ public class MainFrame extends JFrame {
                 //loop();
                 int index = jList.getSelectedIndex();
                 String s = (String) jList.getSelectedValue();
-                System.out.println("Value Selected: " + s);
+
+                if (s == null){
+                    JOptionPane.showMessageDialog(null, "Veuillez sélectionner un appareil"
+                            , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
+                }
                 //transfert
                 //TODO *************************************************
                      //TODO user qui choisi un emplacement system au premier lancement
