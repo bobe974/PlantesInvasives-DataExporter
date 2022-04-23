@@ -154,6 +154,7 @@ public class MysqliteDb {
             System.out.println(e);
         }
         return rs;
+
     }
 
     //ajoute un champs dans la base principale
@@ -180,6 +181,19 @@ public class MysqliteDb {
         if (rowsInserted > 0) {
             System.out.println("une fiche a été ajouté avec succes!");
         }
+        statement.close();
+    }
+
+    public void deleteAll() throws SQLException {
+        String sql = "DELETE FROM Fiche";
+        String reset = "DELETE FROM sqlite_sequence WHERE name = 'Fiche'";
+        PreparedStatement preparedStatement = conMainDb.prepareStatement(sql);
+        preparedStatement.execute();
+        //reset auto increment
+        PreparedStatement preparedStatement1 = conMainDb.prepareStatement(reset);
+        preparedStatement1.execute();
+        preparedStatement.close();
+        preparedStatement1.close();
     }
 
     /**

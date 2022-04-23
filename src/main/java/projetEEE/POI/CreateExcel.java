@@ -29,7 +29,6 @@ public class CreateExcel {
 
         HSSFWorkbook workbook = new HSSFWorkbook();
         HSSFSheet sheet = workbook.createSheet("projet eee");
-        MysqliteDb mysqliteDb = new MysqliteDb();
 
         //recupere les noms des colonnes
         List<String> nomColonne = new ArrayList<>();

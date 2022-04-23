@@ -1,7 +1,8 @@
-
-import Transfert.MTPUtil;
-import Transfert.PhoneToPc;
-import jmtp.PortableDevice;
+//TODO *************************************************
+//import Transfert.MTPUtil;
+//import Transfert.PhoneToPc;
+//import jmtp.PortableDevice;
+import net.proteanit.sql.DbUtils;
 import projetEEE.POI.CreateCSV;
 import projetEEE.POI.CreateExcel;
 import projetEEE.POI.MysqliteDb;
@@ -12,18 +13,22 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 import javax.swing.*;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 /*
  * Dans cet exemple, on imagine refaire une interface graphique
  * qui ressemble (sur quelques points, bien entendu) à l'IDE Eclipse.
  */
 public class MainFrame extends JFrame {
-    
+
     public static JTable jTable;
     private JList jList;
     //chemin des fichiers de l'app
@@ -31,13 +36,13 @@ public class MainFrame extends JFrame {
     //créer le modèle qui  va contenir les appareils connectés
     DefaultListModel<String> model = new DefaultListModel<>();
     private JScrollPane scrollTable;
-    private  JButton  btnExport, btnTransfert, btnRefresh;
+    private  JButton  btnExport, btnTransfert, btnRefresh, btnDelete;
 
 
     /**************DATA************/
     private static MysqliteDb mysqliteDb;
     //En-têtes pour JTable
-    private String[] columns = new String[] {
+    private  static String[] columns = new String[] {
             "Id_fiche","Etablissement","Nom_plante","État","Stade","Description","Photo","Date_photo",
             "Type","Surface","Nb_individu","Latitude","Longitude","Remarques"
     };
@@ -82,7 +87,11 @@ public class MainFrame extends JFrame {
 
         // --- PARTIE PRINCIPALE JTABLE
         JPanel mainPanel = new JPanel();
-        jTable = new JTable(data, columns);
+        System.out.println(data[2][1]);
+        DefaultTableModel dmodel = new DefaultTableModel(data, columns);
+        jTable = new JTable(dmodel);
+        jTable.setShowGrid(true);
+        jTable.setShowHorizontalLines(true);
         scrollTable = new JScrollPane(jTable);
         scrollTable.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollTable.setPreferredSize(new Dimension(730,300));
@@ -108,7 +117,8 @@ public class MainFrame extends JFrame {
 
         // --- PARTIE APPAREIL CONNECTE
         //Jlist
-        feedJlist();
+        //TODO *************************************************
+//        feedJlist();
         JPanel devicesPanel = new JPanel();
         devicesPanel.setLayout(null);
         devicesPanel.setPreferredSize(new Dimension(170,100));
@@ -127,6 +137,10 @@ public class MainFrame extends JFrame {
         btnTransfert = new JButton("Récupérer les données");
         btnTransfert.setBounds(10,300,170,40);
         devicesPanel.add(btnTransfert);
+        btnDelete = new JButton("Réinitialiser la base");
+        btnDelete.setBounds(10,450,170,40);
+        devicesPanel.add(btnDelete);
+
 
         JScrollPane rightpanel = new JScrollPane( devicesPanel);
 
@@ -148,14 +162,6 @@ public class MainFrame extends JFrame {
 
         /*************************EVENT**************************/
 
-        btnRefresh.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                model.clear();
-                feedJlist();
-                jList.repaint();
-            }
-        });
 
         btnTransfert.addActionListener(new ActionListener() {
             @Override
@@ -165,11 +171,11 @@ public class MainFrame extends JFrame {
                 String s = (String) jList.getSelectedValue();
                 System.out.println("Value Selected: " + s);
                 //transfert
-
+                //TODO *************************************************
                      //TODO user qui choisi un emplacement system au premier lancement
-                     PhoneToPc phoneToPc = new PhoneToPc();
-                     phoneToPc.TransfertPhoto(s,PATH_APP);
-                     phoneToPc.TransfertDb(s,PATH_APP);
+//                     PhoneToPc phoneToPc = new PhoneToPc();
+//                     phoneToPc.TransfertPhoto(s,PATH_APP);
+//                     phoneToPc.TransfertDb(s,PATH_APP);
 
                 //vérifie si le fichier existe
                 File fichier = new File(PATH_APP+"/PlanteInvasives.sqlite");
@@ -255,6 +261,31 @@ public class MainFrame extends JFrame {
 
             }
         });
+
+        btnDelete.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    mysqliteDb.deleteAll();
+                    data = new Object[2000][14];
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+                JOptionPane.showMessageDialog(null, "Données supprimées"
+                        , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
+                setTableModel();
+            }
+        });
+
+        btnRefresh.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                model.clear();
+                //TODO *************************************************
+//                feedJlist();
+                jList.repaint();
+            }
+        });
     }
 
     // --- Point d'entrée du programme ---
@@ -262,13 +293,13 @@ public class MainFrame extends JFrame {
 
         UIManager.setLookAndFeel( new NimbusLookAndFeel());
         MainFrame window = new MainFrame();
-        window.initialize();
         window.setSize(1200,800);
+        window.initialize();
         window.setVisible(true);
         MysqliteDb mysqliteDb = new MysqliteDb();
         ResultSet resultSet = mysqliteDb.getAllMainDB();
         window.feedJtable(resultSet);
-
+        window.setTableModel();
     }
 
 
@@ -295,16 +326,21 @@ public class MainFrame extends JFrame {
         return data;
     }
 
+    public void setTableModel(){
+        jTable.setModel(new DefaultTableModel(data,columns));
+    }
+
     public static void updateJtable(){
         //affiche le contenu dans la jtable principale
         try {
             ResultSet res = mysqliteDb.getAllMainDB();
             data = feedJtable(res);
-            jTable.repaint();
+            jTable.setModel(new DefaultTableModel(data,columns));
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
+
 
     /**
      * copie/colle tout les fichiers avec la meme extension
@@ -338,15 +374,17 @@ public class MainFrame extends JFrame {
             }
         }
     }
-    public void feedJlist(){
-        //recuperer tous les appareils
-        MTPUtil mtpUtil = new MTPUtil();
-        for (PortableDevice portableDevice : mtpUtil.getDevices()){
-            portableDevice.open();
-            model.addElement(portableDevice.getModel());
-            portableDevice.close();
-        }
-    }
+
+    //TODO *************************************************
+//    public void feedJlist(){
+//        //recuperer tous les appareils
+//        MTPUtil mtpUtil = new MTPUtil();
+//        for (PortableDevice portableDevice : mtpUtil.getDevices()){
+//            portableDevice.open();
+//            model.addElement(portableDevice.getModel());
+//            portableDevice.close();
+//        }
+//    }
 
 
 
