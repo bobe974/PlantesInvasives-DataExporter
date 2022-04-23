@@ -31,8 +31,8 @@ public class Fenetre extends JFrame {
 
     //TODO modif column
     private String[] columns = new String[] {
-            "Id_fiche","Etablissement","Nom_plante","État","Stade","Description","Photo","Date_photo",
-            "Type","Surface","Nb_individu","Latitude","Longitude","Remarques","d","dd","ddd"
+            "Id_fiche","Etablissement","id_photo","path","date_photo","id_plante","Nom","etat",
+            "stade","Description","id_lieu","type","surface","nb_individu","latitude","longitude","remarques"
     };
 
     //données du jtable
@@ -70,6 +70,9 @@ public class Fenetre extends JFrame {
         JButton btnAggreger = new JButton("Agréger les données");
         JButton btncancel = new JButton("Annuler");
         jTable = new JTable(data,columns);
+        jTable.setShowGrid(true);
+        jTable.setShowHorizontalLines(true);
+
         scrollTable = new JScrollPane(jTable);
         scrollTable.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollTable.setPreferredSize(new Dimension(730,300));
@@ -97,6 +100,7 @@ public class Fenetre extends JFrame {
 
                 //affiche le contenu dans la jtable principale
                 MainFrame.updateJtable();
+                dispose();
             }
         });
 

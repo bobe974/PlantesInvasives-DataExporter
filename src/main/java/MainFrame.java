@@ -274,6 +274,12 @@ public class MainFrame extends JFrame {
                 JOptionPane.showMessageDialog(null, "Données supprimées"
                         , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
                 setTableModel();
+                //supprimer les fichier jpg
+                try {
+                    deleteAllByExtension(PATH_APP,".jpg");
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
         });
 
@@ -355,7 +361,6 @@ public class MainFrame extends JFrame {
         for(File item : liste){
             if(item.isFile())
             {
-
                 if (item.getName().toString().endsWith(extension)) {
                     File file = new File(pathdest + "/" + item.getName().toString());
                     System.out.println(file.getAbsolutePath());
@@ -375,6 +380,27 @@ public class MainFrame extends JFrame {
         }
     }
 
+    public void deleteAllByExtension(String pathtarget,String extension) throws IOException {
+        File dir  = new File(pathtarget);
+        File[] liste = dir.listFiles();
+        for(File item : liste){
+            if(item.isFile())
+            {
+                if (item.getName().toString().endsWith(extension)) {
+                    item.delete();
+                    System.out.format( item.getName() +"supprimé");
+                }
+
+            }
+            else if(item.isDirectory())
+            {
+                if (item.getName().toString().endsWith(".jpg")) {
+                    System.out.format("Nom du fichier: %s%n", item.getName());
+                }
+
+            }
+        }
+    }
     //TODO *************************************************
 //    public void feedJlist(){
 //        //recuperer tous les appareils
