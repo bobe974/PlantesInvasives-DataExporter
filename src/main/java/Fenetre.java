@@ -58,6 +58,7 @@ public class Fenetre extends JFrame {
 
         ResultSet resultset = mysqliteDb.getResultset("PlanteInvasives.sqlite",req);
         data = feedJtable(resultset);
+        mysqliteDb.closeConnEx();
 
         //        progressBar = new JProgressBar(0,1000);
 //        progressBar.setBounds(35,40,165,30);

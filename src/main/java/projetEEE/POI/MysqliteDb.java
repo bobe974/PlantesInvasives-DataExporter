@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class MysqliteDb {
 
-    public static Connection conMainDb;
+    public static Connection conMainDb,connEx ;
     private static boolean hasData = false;
     private ResultSet mainrs;
     private ResultSet rs,rs2;
@@ -145,8 +145,8 @@ public class MysqliteDb {
         try
         {
             //connection a une base existante
-            connection = DriverManager.getConnection("jdbc:sqlite:"+dbname);
-            Statement statement = connection.createStatement();
+            connEx = DriverManager.getConnection("jdbc:sqlite:"+dbname);
+            Statement statement = connEx.createStatement();
             statement.setQueryTimeout(30);
             rs = statement.executeQuery(req);
 
@@ -218,4 +218,12 @@ public class MysqliteDb {
         }
         return  colonne;
     }
+    public void closeConnEx(){
+        try {
+            connEx.close();
+        }catch (Exception e){
+            System.out.println("erreur fermeture base:"+ e);
+        }
+    }
+
 }

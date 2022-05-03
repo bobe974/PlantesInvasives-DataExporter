@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="jmtp">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../jMTPe-master/binaries/jmtp.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <NATIVE>
+      <root url="file://$PROJECT_DIR$/../jMTPe-master/binaries" />
+      <root url="file://$PROJECT_DIR$/../jMTPe-master/binaries" />
+    </NATIVE>
+    <SOURCES />
+  </library>
+</component>

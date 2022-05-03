@@ -192,7 +192,6 @@ public class MTPFileManager {
         }
         return null;
     }
-
     public static void main(String[] args) {
        MTPUtil mtpUtil = new MTPUtil();
        mtpUtil.printDevices();

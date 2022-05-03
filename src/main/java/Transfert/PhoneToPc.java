@@ -3,12 +3,17 @@ package Transfert;
 import be.derycke.pieter.com.COMException;
 import jmtp.*;
 
+import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class PhoneToPc {
+
+    private  String pathdel = System.getProperty("user.dir")+"/1.225_172303_8349967972327207504";
+    MTPFileManager mtpFileManager = new MTPFileManager();
 
     public static void main(String[] args) {
         PhoneToPc phoneToPc = new PhoneToPc();
@@ -58,7 +63,7 @@ public class PhoneToPc {
                                         PortableDeviceFolderObject storage3 = (PortableDeviceFolderObject) o4;
                                         for (PortableDeviceObject o5: storage3.getChildObjects()) {
                                             if (o5.getOriginalFileName().equals("files")) {
-                                                System.out.println("/files");
+
 
                                                 PortableDeviceFolderObject storage4 = (PortableDeviceFolderObject) o5;
                                                 //parcours tout les fichiers du path
@@ -68,12 +73,10 @@ public class PhoneToPc {
 
                                                         for (PortableDeviceObject o7: storage5.getChildObjects()) {
                                                             System.out.println(o7.getOriginalFileName());
-
-                                                            //copie de toutes les images sur le bureau
-                                                            //TODO modif la route
+                                                            //copie des images
                                                             PortableDeviceToHostImpl32 host =  new PortableDeviceToHostImpl32();
                                                             try {
-                                                                System.out.println("copie de "+o7.getOriginalFileName());
+                                                                System.out.println("copie de l'image =>"+o7.getOriginalFileName());
                                                                 host.copyFromPortableDeviceToHost(o7.getID(),path,device);
                                                             } catch (COMException e) {
                                                                 e.printStackTrace();
@@ -95,6 +98,8 @@ public class PhoneToPc {
     }
 
     public void TransfertDb(String nomAppareil, String path){
+
+        int verrou = 0;
         PortableDeviceManager manager = new PortableDeviceManager();
         //PortableDevice device = manager.getDevices()[0];
         PortableDevice device  = null;
@@ -136,26 +141,48 @@ public class PhoneToPc {
 
                                         PortableDeviceFolderObject storage3 = (PortableDeviceFolderObject) o4;
                                         for (PortableDeviceObject o5: storage3.getChildObjects()) {
-                                            if (o5.getOriginalFileName().equals("files")) {
 
+                                            if (o5.getOriginalFileName().equals("files")) {
 
                                                 PortableDeviceFolderObject storage4 = (PortableDeviceFolderObject) o5;
                                                 //parcours tout les fichiers du path
                                                 for (PortableDeviceObject o6: storage4.getChildObjects()) {
+
                                                     if(o6.getOriginalFileName().equals("Pictures")){
                                                         PortableDeviceFolderObject storage5 = (PortableDeviceFolderObject) o6;
 
                                                         for (PortableDeviceObject o7: storage5.getChildObjects()) {
+
                                                             if(o7.getOriginalFileName().equals("DBsaves")){
                                                            PortableDeviceFolderObject storage6 = (PortableDeviceFolderObject) o7;
                                                                 for (PortableDeviceObject o8: storage6.getChildObjects()) {
 
-                                                                    //copie de toutes les images sur le bureau
+                                                                    //copie de la base sql
                                                                     PortableDeviceToHostImpl32 host =  new PortableDeviceToHostImpl32();
                                                                     try {
                                                                         System.out.println("copie de "+o8.getOriginalFileName());
                                                                         host.copyFromPortableDeviceToHost(o8.getID(),path,device);
                                                                     } catch (COMException e) {
+                                                                        e.printStackTrace();
+                                                                    }
+                                                                    try {
+                                                                        //TODO COPIE DU FICHIER DELETE
+                                                    if(verrou == 0){
+                                                        System.out.println("ajout du fichier delete dans" + storage4.getName());
+                                                        try{
+                                                            File file =  new File(pathdel);
+                                                            storage4.addAudioObject(
+                                                                    file, "string1","string2", new BigInteger("12345"));
+                                                            if (file.exists()){
+                                                                System.out.println("verrouiller");
+                                                                verrou = 1;
+                                                            }
+                                                        }
+                                                        catch(Exception e)
+                                                        { System.out.println(e);}
+
+                                                    }
+                                                                    } catch (Exception e) {
                                                                         e.printStackTrace();
                                                                     }
 
@@ -193,14 +220,3 @@ public class PhoneToPc {
                 });
     }
 }
-
-//  PortableDeviceFolderObject host =  (PortableDeviceFolderObject) o3;
-//                                try {
-//                                    File f = new File( "c://sqlite//db//copagaz_mobile_desenv.db");
-//                                    System.out.println("Copiando arquivo .db para o Tablet");
-//                                    host.addAudioObject(f, "0", "1", new BigInteger("12345"));
-//                                    System.out.println("Arquivo copiado");
-//
-//                                } catch (IOException e) {
-//                                    e.printStackTrace();
-//                                }

@@ -1,8 +1,8 @@
 //TODO *************************************************
-//import Transfert.MTPUtil;
-//import Transfert.PhoneToPc;
-//import jmtp.PortableDevice;
-import net.proteanit.sql.DbUtils;
+import Transfert.MTPUtil;
+import Transfert.PhoneToPc;
+import jmtp.PortableDevice;
+
 import projetEEE.POI.CreateCSV;
 import projetEEE.POI.CreateExcel;
 import projetEEE.POI.MysqliteDb;
@@ -13,9 +13,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.sql.Array;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Arrays;
 
 import javax.swing.*;
@@ -74,6 +72,21 @@ public class MainFrame extends JFrame {
         //initialisation bdd
         mysqliteDb = new MysqliteDb();
 
+        //créer le fichier delete
+        //vérifie si la base existe
+        File file = new File(PATH_APP+"/1.225_172303_8349967972327207504");
+        if(!(file.exists()))
+        {
+            //si la base existe on se connecte
+            System.out.print("*******création fichier delete*******");
+            try {
+                file.createNewFile();
+            }catch (Exception e){
+                System.out.println(e);
+            }
+
+        }
+
         Fenetre fenetre = new Fenetre(mysqliteDb);
         fenetre.setVisible(false);
 
@@ -82,7 +95,8 @@ public class MainFrame extends JFrame {
 
         // --- EXPLORATEUR DE PROJET
         JTree projectExplorerTree = new JTree();
-        JScrollPane projectScrollPane = new JScrollPane( projectExplorerTree );
+        //TODO JSCROLLPANEL PAS VIDE
+        JScrollPane projectScrollPane = new JScrollPane( );
         projectScrollPane.setPreferredSize( new Dimension( 200, 0 ) );
 
         // --- PARTIE PRINCIPALE JTABLE
@@ -117,8 +131,7 @@ public class MainFrame extends JFrame {
 
         // --- PARTIE APPAREIL CONNECTE
         //Jlist
-        //TODO *************************************************
-//        feedJlist();
+        feedJlist();
         JPanel devicesPanel = new JPanel();
         devicesPanel.setLayout(null);
         devicesPanel.setPreferredSize(new Dimension(170,100));
@@ -154,6 +167,7 @@ public class MainFrame extends JFrame {
                 JSplitPane.VERTICAL_SPLIT, documentSplitPane, bottompanel );
         rightSplitPane.setResizeWeight( 0.8 );
 
+        //TODO projectScrollPane a la place de null
         JSplitPane mainSplitPane = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT, projectScrollPane, rightSplitPane );
         mainSplitPane.setResizeWeight( 0.16 );
@@ -177,9 +191,9 @@ public class MainFrame extends JFrame {
                 //transfert
                 //TODO *************************************************
                      //TODO user qui choisi un emplacement system au premier lancement
-//                     PhoneToPc phoneToPc = new PhoneToPc();
-//                     phoneToPc.TransfertPhoto(s,PATH_APP);
-//                     phoneToPc.TransfertDb(s,PATH_APP);
+                     PhoneToPc phoneToPc = new PhoneToPc();
+                     phoneToPc.TransfertPhoto(s,PATH_APP);
+                     phoneToPc.TransfertDb(s,PATH_APP);
 
                 //vérifie si le fichier existe
                 File fichier = new File(PATH_APP+"/PlanteInvasives.sqlite");
@@ -284,6 +298,16 @@ public class MainFrame extends JFrame {
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
+
+                //supprimer la base externe
+                try {
+
+                    deleteByName(PATH_APP,"PlanteInvasives.sqlite");
+                    deleteByName(PATH_APP,"PlanteInvasives.sqlite-shm");
+                    deleteByName(PATH_APP,"PlanteInvasives.sqlite-wal");
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
         });
 
@@ -292,7 +316,7 @@ public class MainFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 model.clear();
                 //TODO *************************************************
-//                feedJlist();
+                feedJlist();
                 jList.repaint();
             }
         });
@@ -365,6 +389,7 @@ public class MainFrame extends JFrame {
         for(File item : liste){
             if(item.isFile())
             {
+
                 if (item.getName().toString().endsWith(extension)) {
                     File file = new File(pathdest + "/" + item.getName().toString());
                     System.out.println(file.getAbsolutePath());
@@ -405,16 +430,31 @@ public class MainFrame extends JFrame {
             }
         }
     }
+
+    public void deleteByName(String pathtarget,String filename) throws IOException {
+        File dir  = new File(pathtarget);
+        File[] liste = dir.listFiles();
+        for(File item : liste){
+            if(item.isFile())
+            {
+                if (item.getName().toString().equals(filename)) {
+                    item.delete();
+                    System.out.format( item.getName() +"fichier "+filename+"supprimé");
+                }
+
+            }
+        }
+    }
     //TODO *************************************************
-//    public void feedJlist(){
-//        //recuperer tous les appareils
-//        MTPUtil mtpUtil = new MTPUtil();
-//        for (PortableDevice portableDevice : mtpUtil.getDevices()){
-//            portableDevice.open();
-//            model.addElement(portableDevice.getModel());
-//            portableDevice.close();
-//        }
-//    }
+    public void feedJlist(){
+        //recuperer tous les appareils
+        MTPUtil mtpUtil = new MTPUtil();
+        for (PortableDevice portableDevice : mtpUtil.getDevices()){
+            portableDevice.open();
+            model.addElement(portableDevice.getModel());
+            portableDevice.close();
+        }
+    }
 
 
 
