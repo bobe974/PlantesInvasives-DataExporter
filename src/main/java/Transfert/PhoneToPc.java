@@ -169,7 +169,7 @@ public class PhoneToPc {
                                                                         //TODO COPIE DU FICHIER DELETE
                                                     if(verrou == 0){
                                                         // si on trouve pas le fichier delete, on le créer
-                                                        if (!findDelFile(o5)){
+                                                        if (!findDelFile(o5, "1.225_172303_8349967972327207504")){
                                                             System.out.println("######ajout du fichier delete dans" + storage4.getName());
                                                             try{
                                                                 File file =  new File(pathdel);
@@ -225,10 +225,9 @@ public class PhoneToPc {
     }
 
 
-    public boolean findDelFile(PortableDeviceObject o){
+    public boolean findDelFile(PortableDeviceObject o,String filename){
         System.out.println("METHODE FIND DEL#####");
         Boolean i  = false;
-        String filename = "1.225_172303_8349967972327207504";
         PortableDeviceFolderObject storage = (PortableDeviceFolderObject) o;
         for (PortableDeviceObject portableDeviceObject: storage.getChildObjects()) {
             System.out.println(portableDeviceObject.getOriginalFileName());
