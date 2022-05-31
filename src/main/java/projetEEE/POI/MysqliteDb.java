@@ -13,6 +13,7 @@ public class MysqliteDb {
     private ResultSet mainrs;
     private ResultSet rs,rs2;
     private String reqCreatedb = "CREATE TABLE IF NOT EXISTS \"Fiche\" (\n" +
+            "\t\"num_fiche\"\tINTEGER NOT NULL,\n" +
             "\t\"id_fiche\"\tINTEGER NOT NULL,\n" +
             "\t\"nom_etablissement\"\tTEXT,\n" +
             "\t\"Nom_plante\"\tTEXT,\n" +
@@ -27,7 +28,7 @@ public class MysqliteDb {
             "\t\"latitude\"\tREAL NOT NULL,\n" +
             "\t\"longitude\"\tREAL NOT NULL,\n" +
             "\t\"remarques\"\tTEXT,\n" +
-            "\tPRIMARY KEY(\"id_fiche\" AUTOINCREMENT)\n" +
+            "\tPRIMARY KEY(\"num_fiche\"AUTOINCREMENT)\n" +
             ");";
 
     public MysqliteDb(){
@@ -107,9 +108,11 @@ public class MysqliteDb {
                     "            ON Fiche.id_fiche = Lieu.id_lieu ");
 
             //parcours de la base et ajout des champs dans la base principale
+
+
             while(rs.next())
             {
-                insert(rs.getString(2),rs.getString(7), rs.getString(8),
+                insert(rs.getString(4),rs.getString(2),rs.getString(7), rs.getString(8),
                         rs.getString(9),rs.getString(10),rs.getString(4),
                         rs.getString(5),rs.getString(12),rs.getString(13),
                         rs.getString(14),rs.getString(15),rs.getString(16),
@@ -130,6 +133,7 @@ public class MysqliteDb {
 //                System.out.println("latittude = " + rs.getString(15));
 //                System.out.println("longitude = " + rs.getString(16));
 //                System.out.println("remarque = " + rs.getString(17));
+
             }
         }
         catch(SQLException e)
@@ -158,24 +162,25 @@ public class MysqliteDb {
     }
 
     //ajoute un champs dans la base principale
-    public void insert(String etablissement, String nomPlante, String etat, String stade, String description, String path, String date, String type, String surface, String nb_indiv, String latitude ,String longitude, String remarques) throws SQLException {
-        String sql = "INSERT INTO  Fiche (nom_etablissement,Nom_plante,etat,stade,description,chemin_fichier,DatePhoto,type,surface,nb_individu,latitude,longitude,remarques) \n" +
-                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    public void insert(String id_fiche, String etablissement, String nomPlante, String etat, String stade, String description, String path, String date, String type, String surface, String nb_indiv, String latitude ,String longitude, String remarques) throws SQLException {
+        String sql = "INSERT INTO  Fiche (id_fiche,nom_etablissement,Nom_plante,etat,stade,description,chemin_fichier,DatePhoto,type,surface,nb_individu,latitude,longitude,remarques) \n" +
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         PreparedStatement statement = conMainDb.prepareStatement(sql);
-        statement.setString(1, etablissement);
-        statement.setString(2, nomPlante);
-        statement.setString(3, etat);
-        statement.setString(4, stade);
-        statement.setString(5, description);
+        statement.setString(1, id_fiche.substring(81,id_fiche.length()-4));
+        statement.setString(2, etablissement);
+        statement.setString(3, nomPlante);
+        statement.setString(4, etat);
+        statement.setString(5, stade);
+        statement.setString(6, description);
         //recupere une partie du path
-        statement.setString(6, path.substring(76));
-        statement.setString(7, date);
-        statement.setString(8, type);
-        statement.setString(9, surface);
-        statement.setString(10, nb_indiv);
-        statement.setString(11, latitude);
-        statement.setString(12, longitude);
-        statement.setString(13, remarques);
+        statement.setString(7, path.substring(76));
+        statement.setString(8, date);
+        statement.setString(9, type);
+        statement.setString(10, surface);
+        statement.setString(11, nb_indiv);
+        statement.setString(12, latitude);
+        statement.setString(13, longitude);
+        statement.setString(14, remarques);
 
         int rowsInserted = statement.executeUpdate();
         if (rowsInserted > 0) {

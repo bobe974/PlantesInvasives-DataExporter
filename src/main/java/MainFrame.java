@@ -14,17 +14,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.*;
-import java.util.Arrays;
 
 import javax.swing.*;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
-/*
- * Dans cet exemple, on imagine refaire une interface graphique
- * qui ressemble (sur quelques points, bien entendu) à l'IDE Eclipse.
- */
+
+
 public class MainFrame extends JFrame {
 
     public static JTable jTable;
@@ -41,12 +37,12 @@ public class MainFrame extends JFrame {
     private static MysqliteDb mysqliteDb;
     //En-têtes pour JTable
     private  static String[] columns = new String[] {
-            "Id_fiche","Etablissement","Nom_plante","État","Stade","Description","Photo","Date_photo",
+            "Num_Fiche", "Id_fiche","Etablissement","Nom_plante","État","Stade","Description","Photo","Date_photo",
             "Type","Surface","Nb_individu","Latitude","Longitude","Remarques"
     };
 
     //données du jtable
-    public static Object[][] data = new Object[2000][14];
+    public static Object[][] data = new Object[2000][15];
 
     /**************DATA************/
 
@@ -213,7 +209,7 @@ public class MainFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                //vérifie si les cases sont selectionné
+                //vérifie si les cases sont selectionnées
                 if(!(checkcsv.isSelected() || checkxls.isSelected())){
                     JOptionPane.showMessageDialog(null, "Veuillez choisir le format d'exportation"
                             , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
@@ -285,7 +281,7 @@ public class MainFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     mysqliteDb.deleteAll();
-                    data = new Object[2000][14];
+                    data = new Object[2000][15];
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
