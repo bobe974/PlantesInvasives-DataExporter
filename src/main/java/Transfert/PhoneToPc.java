@@ -168,18 +168,22 @@ public class PhoneToPc {
                                                                     try {
                                                                         //TODO COPIE DU FICHIER DELETE
                                                     if(verrou == 0){
-                                                        System.out.println("ajout du fichier delete dans" + storage4.getName());
-                                                        try{
-                                                            File file =  new File(pathdel);
-                                                            storage4.addAudioObject(
-                                                                    file, "string1","string2", new BigInteger("12345"));
-                                                            if (file.exists()){
-                                                                System.out.println("verrouiller");
-                                                                verrou = 1;
+                                                        // si on trouve pas le fichier delete, on le créer
+                                                        if (!findDelFile(o5)){
+                                                            System.out.println("######ajout du fichier delete dans" + storage4.getName());
+                                                            try{
+                                                                File file =  new File(pathdel);
+                                                                storage4.addAudioObject(
+                                                                        file, "string1","string2", new BigInteger("12345"));
+                                                                if (file.exists()){
+                                                                    System.out.println("verrouiller");
+                                                                    verrou = 1;
+                                                                }
                                                             }
+                                                            catch(Exception e)
+                                                            { System.out.println(e);}
                                                         }
-                                                        catch(Exception e)
-                                                        { System.out.println(e);}
+
 
                                                     }
                                                                     } catch (Exception e) {
@@ -218,5 +222,22 @@ public class PhoneToPc {
                         e.printStackTrace();
                     }
                 });
+    }
+
+
+    public boolean findDelFile(PortableDeviceObject o){
+        System.out.println("METHODE FIND DEL#####");
+        Boolean i  = false;
+        String filename = "1.225_172303_8349967972327207504";
+        PortableDeviceFolderObject storage = (PortableDeviceFolderObject) o;
+        for (PortableDeviceObject portableDeviceObject: storage.getChildObjects()) {
+            System.out.println(portableDeviceObject.getOriginalFileName());
+            if (portableDeviceObject.getOriginalFileName().equals(filename)){
+                System.out.println("####le fichier existe->");
+                System.out.println(portableDeviceObject.getOriginalFileName() + "correspond a:"+ filename);
+                i = true;
+            }
+        }
+        return i;
     }
 }
