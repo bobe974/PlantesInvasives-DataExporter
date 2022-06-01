@@ -81,7 +81,7 @@ public class MysqliteDb {
     /**********************************************************/
 
     //connection a une base et alimente la base pricipale
-    public void feedDb(String dbname){
+    public void feedDb(String dbname) throws SQLException {
         Connection connection = null;
 
         try
@@ -140,6 +140,7 @@ public class MysqliteDb {
         {
             System.err.println(e.getMessage());
         }
+        connection.close();
     }
 
     //recupere le resulset de la base ciblé
@@ -153,6 +154,7 @@ public class MysqliteDb {
             Statement statement = connEx.createStatement();
             statement.setQueryTimeout(30);
             rs = statement.executeQuery(req);
+            connection.close();
 
         }catch (Exception e){
             System.out.println(e);

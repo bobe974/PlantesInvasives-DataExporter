@@ -10,10 +10,13 @@ import projetEEE.POI.MysqliteDb;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.sql.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 
 import javax.swing.*;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
@@ -31,6 +34,7 @@ public class MainFrame extends JFrame {
     DefaultListModel<String> model = new DefaultListModel<>();
     private JScrollPane scrollTable;
     private  JButton  btnExport, btnTransfert, btnRefresh, btnDelete;
+    private String deviceName ;
 
 
     /**************DATA************/
@@ -49,14 +53,7 @@ public class MainFrame extends JFrame {
     public MainFrame() {
         super("Projet EEE");
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        //centrer la jframe
-        //récuperer la taille de l'écran
-        Dimension tailleEcran = Toolkit.getDefaultToolkit().getScreenSize();
-        int height = tailleEcran.height;
-        int width = tailleEcran.width;
-        //taille est un demi la longueur et l'hauteur
-        setSize(width/2, height/2);
-        setLocationRelativeTo(null);
+
         // créer un modèle vide
         //initialize();
 
@@ -73,10 +70,22 @@ public class MainFrame extends JFrame {
         File file = new File(PATH_APP+"/1.225_172303_8349967972327207504");
         if(!(file.exists()))
         {
-            //si la base existe on se connecte
             System.out.print("*******création fichier delete*******");
             try {
                 file.createNewFile();
+            }catch (Exception e){
+                System.out.println(e);
+            }
+
+        }
+
+        //créer le dossier backup
+        File backup = new File(PATH_APP+"/backup");
+        if(!(backup.exists()))
+        {
+            System.out.print("*******création dossier backup*******");
+            try {
+                backup.mkdir();
             }catch (Exception e){
                 System.out.println(e);
             }
@@ -147,7 +156,7 @@ public class MainFrame extends JFrame {
         btnTransfert.setBounds(10,300,170,40);
         devicesPanel.add(btnTransfert);
         btnDelete = new JButton("Réinitialiser la base");
-        btnDelete.setBounds(10,450,170,40);
+        btnDelete.setBounds(10,350,170,40);
         devicesPanel.add(btnDelete);
 
 
@@ -161,7 +170,7 @@ public class MainFrame extends JFrame {
         //pane du dessous aligné verticalement
         JSplitPane rightSplitPane = new JSplitPane(
                 JSplitPane.VERTICAL_SPLIT, documentSplitPane, bottompanel );
-        rightSplitPane.setResizeWeight( 0.8 );
+        rightSplitPane.setResizeWeight( 0.9 );
 
         //TODO projectScrollPane a la place de null
         JSplitPane mainSplitPane = new JSplitPane(
@@ -179,6 +188,7 @@ public class MainFrame extends JFrame {
                 //loop();
                 int index = jList.getSelectedIndex();
                 String s = (String) jList.getSelectedValue();
+                deviceName = s;
 
                 if (s == null){
                     JOptionPane.showMessageDialog(null, "Veuillez sélectionner un appareil"
@@ -199,8 +209,12 @@ public class MainFrame extends JFrame {
                             , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
                 }
 
+                //TODO copier la base dans le fichier back up
+                ArrayList<String> lesPhotos = getPhotosNames();
+                createBackup(deviceName, lesPhotos);
                 fenetre.setVisible(true);
-                fenetre.init();
+                fenetre.init("PlanteInvasives.sqlite");
+                // exemple pour une base dans un autre répertoire: backup/SM-G960F/PlanteInvasives.sqlite
 
             }
         });
@@ -405,6 +419,32 @@ public class MainFrame extends JFrame {
         }
     }
 
+    public void copyByName(String fileName, String pathtarget, String pathdest) throws IOException {
+        File dir  = new File(pathtarget);
+        File[] liste = dir.listFiles();
+        for(File item : liste){
+            if(item.isFile())
+            {
+
+                if (item.getName().toString().equals(fileName)) {
+                    File file = new File(pathdest + "/" + item.getName().toString());
+                    System.out.println(file.getAbsolutePath());
+                    System.out.format("Nom du fichier: %s%n", item.getName());
+                    //copié coller a la destination
+                    Files.copy(new File(item.getName().toString()).toPath(),file.toPath());
+                }
+
+            }
+            else if(item.isDirectory())
+            {
+                if (item.getName().toString().endsWith(".jpg")) {
+                    System.out.format("Nom du fichier: %s%n", item.getName());
+                }
+
+            }
+        }
+    }
+
     public void deleteAllByExtension(String pathtarget,String extension) throws IOException {
         File dir  = new File(pathtarget);
         File[] liste = dir.listFiles();
@@ -430,6 +470,7 @@ public class MainFrame extends JFrame {
     public void deleteByName(String pathtarget,String filename) throws IOException {
         File dir  = new File(pathtarget);
         File[] liste = dir.listFiles();
+
         for(File item : liste){
             if(item.isFile())
             {
@@ -453,7 +494,58 @@ public class MainFrame extends JFrame {
     }
 
 
+    public void createBackup(String folderName, ArrayList lesPhotographies){ //, ArrayList lesPhotos
+        String path = PATH_APP+"/backup/"+folderName;
+        //recupere la date actuelle
 
+        File file = new File(path);
+        if(!(file.exists()))
+        {
+            //si la base existe on se connecte
+            System.out.print("*******création du backup*******");
+            try {
+                file.mkdir();
+            }catch (Exception e){
+                System.out.println(e);
+            }
 
+            //copie de la base de données
+            try {
+                copyByName("PlanteInvasives.sqlite",PATH_APP,path);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            //copie des photos
+            ArrayList<String> lesPhotos = lesPhotographies;
+            for(String unePhoto : lesPhotos){
+                //copie de chaque photos trouvé depuis le répertoire de l'application
+                try {
+                    copyByName(unePhoto,PATH_APP,path);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+
+    public ArrayList getPhotosNames(){
+        ArrayList<String> lesPhotos = new ArrayList<>();
+        String req = "SELECT chemin_fichier FROM Photographie";
+        ResultSet resultSet = mysqliteDb.getResultset("PlanteInvasives.sqlite",req);
+        //parcours du résultset
+        try {
+            while (resultSet.next()){
+                //ajout de chaque Nom dans la liste
+                String PhotoName = resultSet.getString(1).substring(76);
+                lesPhotos.add(PhotoName);
+                System.out.println(PhotoName);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return lesPhotos;
+    }
 
 }

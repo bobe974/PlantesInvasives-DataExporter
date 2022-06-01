@@ -54,9 +54,9 @@ public class Fenetre extends JFrame {
         //init();
     }
 
-    public  void init(){
+    public  void init(String dbPath){
 
-        ResultSet resultset = mysqliteDb.getResultset("PlanteInvasives.sqlite",req);
+        ResultSet resultset = mysqliteDb.getResultset(dbPath,req);
         data = feedJtable(resultset);
         mysqliteDb.closeConnEx();
 
@@ -97,7 +97,12 @@ public class Fenetre extends JFrame {
                 // connection usb
 
                 //se connecte a une base et alimente la base principal
-                mysqliteDb.feedDb("PlanteInvasives.sqlite");
+                try {
+                    mysqliteDb.feedDb("PlanteInvasives.sqlite");
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+
 
                 //affiche le contenu dans la jtable principale
                 MainFrame.updateJtable();
