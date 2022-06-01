@@ -13,10 +13,7 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.nio.file.Files;
 import java.sql.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import javax.swing.*;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
@@ -99,9 +96,24 @@ public class MainFrame extends JFrame {
         JPanel panneau= (JPanel) getContentPane();
 
         // --- EXPLORATEUR DE PROJET
-        JTree projectExplorerTree = new JTree();
-        //TODO JSCROLLPANEL PAS VIDE
-        JScrollPane projectScrollPane = new JScrollPane( );
+        JPanel fileTreePanel = new JPanel();
+        fileTreePanel.setLayout(null);
+        fileTreePanel.setPreferredSize(new Dimension(170,100));
+
+        FileExplorer fileBrowser = new FileExplorer();
+        fileBrowser.run();
+        JTree projectExplorerTree = fileBrowser.getTree();
+        projectExplorerTree.setBounds(10,40,150,200);
+        fileTreePanel.add(projectExplorerTree);
+
+        JButton btnRefreshTree = new JButton("Actualiser");
+        btnRefreshTree.setBounds(40,250,100,20);
+        fileTreePanel.add(btnRefreshTree);
+        JButton btnSelectNode = new JButton("Récupérer les données");
+        btnSelectNode.setBounds(10,300,170,40);
+        fileTreePanel.add(btnSelectNode);
+
+        JScrollPane projectScrollPane = new JScrollPane(fileTreePanel);
         projectScrollPane.setPreferredSize( new Dimension( 200, 0 ) );
 
         // --- PARTIE PRINCIPALE JTABLE
@@ -172,7 +184,7 @@ public class MainFrame extends JFrame {
                 JSplitPane.VERTICAL_SPLIT, documentSplitPane, bottompanel );
         rightSplitPane.setResizeWeight( 0.9 );
 
-        //TODO projectScrollPane a la place de null
+
         JSplitPane mainSplitPane = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT, projectScrollPane, rightSplitPane );
         mainSplitPane.setResizeWeight( 0.16 );
@@ -218,6 +230,7 @@ public class MainFrame extends JFrame {
 
             }
         });
+
 
         btnExport.addActionListener(new ActionListener() {
             @Override
@@ -328,6 +341,13 @@ public class MainFrame extends JFrame {
                 //TODO *************************************************
                 feedJlist();
                 jList.repaint();
+            }
+        });
+
+        btnRefreshTree.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+              
             }
         });
     }
