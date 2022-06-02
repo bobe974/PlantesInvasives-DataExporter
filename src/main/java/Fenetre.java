@@ -40,7 +40,7 @@ public class Fenetre extends JFrame {
 
     public  Fenetre(MysqliteDb mysqliteDb){
         //frame de contextuelle
-        super("Apercu des données de l'appareil");
+        super("Prévisualition des données");
         Dimension tailleEcran = Toolkit.getDefaultToolkit().getScreenSize();
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         int height = tailleEcran.height;
@@ -98,7 +98,7 @@ public class Fenetre extends JFrame {
 
                 //se connecte a une base et alimente la base principal
                 try {
-                    mysqliteDb.feedDb("PlanteInvasives.sqlite");
+                    mysqliteDb.feedDb(dbPath);
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }

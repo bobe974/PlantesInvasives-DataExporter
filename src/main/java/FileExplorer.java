@@ -7,6 +7,8 @@ import java.io.File;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -14,15 +16,14 @@ import javax.swing.tree.TreePath;
 public class FileExplorer implements Runnable {
 
     private DefaultMutableTreeNode root;
-
     private DefaultTreeModel treeModel;
-
     private JTree tree;
+    private String selectedPath = "";
 
     @Override
     public void run() {
 
-        File fileRoot = new File(System.getProperty("user.dir")+"/backup");
+        File fileRoot = new File(System.getProperty("user.dir") + "/backup");
         root = new DefaultMutableTreeNode(new FileNode(fileRoot));
         treeModel = new DefaultTreeModel(root);
 
@@ -35,15 +36,27 @@ public class FileExplorer implements Runnable {
         new Thread(ccn).start();
 
         //EVENT
-        tree.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent me) {
-                TreePath tp = tree.getPathForLocation(me.getX(), me.getY());
-                System.out.println(tp.getLastPathComponent());
-
+//        tree.addMouseListener(new MouseAdapter() {
+//            public void mouseClicked(MouseEvent me) {
+//                TreePath tp = tree.getPathForLocation(me.getX(), me.getY());
+//                System.out.println(tp.getLastPathComponent());
+//
+//            }
+//        });
+        tree.addTreeSelectionListener(new TreeSelectionListener() {
+            public void valueChanged(TreeSelectionEvent e) {
+                String value ="";
+                TreePath treepath = e.getPath();
+                //System.out.println("Java: " + treepath.getLastPathComponent());
+                Object elements[] = treepath.getPath();
+                for (int i = 0, n = elements.length; i < n; i++) {
+                    // JOptionPane.showMessageDialog(null,"->"+elements[i]);
+                    //lblNewLabel.setText(">"+ elements[i]);
+                    selectedPath = value += elements[i] + "/";
+                    System.out.println(selectedPath);
+                }
             }
         });
-
-
     }
 
     public void init(){
@@ -104,5 +117,8 @@ public class FileExplorer implements Runnable {
 
     public JTree getTree() {
         return tree;
+    }
+    public String getSelectedPath(){
+        return selectedPath;
     }
 }

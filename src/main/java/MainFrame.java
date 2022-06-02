@@ -1,4 +1,3 @@
-//TODO *************************************************
 import Transfert.MTPUtil;
 import Transfert.PhoneToPc;
 import jmtp.PortableDevice;
@@ -59,6 +58,7 @@ public class MainFrame extends JFrame {
 
     private void initialize() {
 
+        System.out.println(PATH_APP);
         //initialisation bdd
         mysqliteDb = new MysqliteDb();
 
@@ -97,6 +97,12 @@ public class MainFrame extends JFrame {
 
         // --- EXPLORATEUR DE PROJET
         JPanel fileTreePanel = new JPanel();
+
+        JLabel jLabeltree = new JLabel("Transfert Précédents");
+        jLabeltree.setBounds(25,1,150,40);
+        fileTreePanel.add(jLabeltree);
+
+        //Jtree
         fileTreePanel.setLayout(null);
         fileTreePanel.setPreferredSize(new Dimension(170,100));
 
@@ -109,9 +115,12 @@ public class MainFrame extends JFrame {
         JButton btnRefreshTree = new JButton("Actualiser");
         btnRefreshTree.setBounds(40,250,100,20);
         fileTreePanel.add(btnRefreshTree);
-        JButton btnSelectNode = new JButton("Récupérer les données");
+        JButton btnSelectNode = new JButton("Aperçu de la base");
         btnSelectNode.setBounds(10,300,170,40);
         fileTreePanel.add(btnSelectNode);
+        JButton btnDeletetree = new JButton("Supprimer backup");
+        btnDeletetree.setBounds(10,350,170,40);
+        fileTreePanel.add(btnDeletetree);
 
         JScrollPane projectScrollPane = new JScrollPane(fileTreePanel);
         projectScrollPane.setPreferredSize( new Dimension( 200, 0 ) );
@@ -224,9 +233,31 @@ public class MainFrame extends JFrame {
                 //TODO copier la base dans le fichier back up
                 ArrayList<String> lesPhotos = getPhotosNames();
                 createBackup(deviceName, lesPhotos);
+
+                //lance la fenetre apercu
                 fenetre.setVisible(true);
                 fenetre.init("PlanteInvasives.sqlite");
                 // exemple pour une base dans un autre répertoire: backup/SM-G960F/PlanteInvasives.sqlite
+
+            }
+        });
+
+        btnSelectNode.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //recupere le noeud qui est séléctionné
+                System.out.println( fileBrowser.getSelectedPath());
+                String nodePath = fileBrowser.getSelectedPath() ;
+
+                //copie des photos dans le répertoire principale (pour l'export)
+                try {
+                    copyAllByExtension(nodePath,PATH_APP,".jpg");
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+                //apercu de la base chargé
+                fenetre.setVisible(true);
+                fenetre.init(nodePath + "PlanteInvasives.sqlite");
 
             }
         });
@@ -334,6 +365,18 @@ public class MainFrame extends JFrame {
             }
         });
 
+        btnDeletetree.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //supprime le contenu du répertoire backup
+                try {
+                    deleteAllByExtension(PATH_APP+"/backup","");
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
         btnRefresh.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -425,7 +468,7 @@ public class MainFrame extends JFrame {
                     System.out.println(file.getAbsolutePath());
                     System.out.format("Nom du fichier: %s%n", item.getName());
                     //copié coller a la destination
-                    Files.copy(new File(item.getName().toString()).toPath(),file.toPath());
+                    Files.copy(item.toPath(),file.toPath());
                 }
 
             }
@@ -451,7 +494,7 @@ public class MainFrame extends JFrame {
                     System.out.println(file.getAbsolutePath());
                     System.out.format("Nom du fichier: %s%n", item.getName());
                     //copié coller a la destination
-                    Files.copy(new File(item.getName().toString()).toPath(),file.toPath());
+                    Files.copy(item.toPath(),file.toPath());
                 }
 
             }
@@ -479,10 +522,8 @@ public class MainFrame extends JFrame {
             }
             else if(item.isDirectory())
             {
-                if (item.getName().toString().endsWith(".jpg")) {
-                    System.out.format("Nom du fichier: %s%n", item.getName());
-                }
-
+                System.out.println("supprime le répertoire:"+ item.getName());
+                item.delete();
             }
         }
     }
