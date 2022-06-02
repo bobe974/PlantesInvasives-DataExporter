@@ -31,6 +31,7 @@ public class MainFrame extends JFrame {
     private JScrollPane scrollTable;
     private  JButton  btnExport, btnTransfert, btnRefresh, btnDelete;
     private String deviceName ;
+    JTree projectExplorerTree;
 
 
     /**************DATA************/
@@ -98,7 +99,7 @@ public class MainFrame extends JFrame {
         // --- EXPLORATEUR DE PROJET
         JPanel fileTreePanel = new JPanel();
 
-        JLabel jLabeltree = new JLabel("Transfert Précédents");
+        JLabel jLabeltree = new JLabel("Fichiers de restauration");
         jLabeltree.setBounds(25,1,150,40);
         fileTreePanel.add(jLabeltree);
 
@@ -108,7 +109,7 @@ public class MainFrame extends JFrame {
 
         FileExplorer fileBrowser = new FileExplorer();
         fileBrowser.run();
-        JTree projectExplorerTree = fileBrowser.getTree();
+        projectExplorerTree = fileBrowser.getTree();
         projectExplorerTree.setBounds(10,40,150,200);
         fileTreePanel.add(projectExplorerTree);
 
@@ -369,11 +370,16 @@ public class MainFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //supprime le contenu du répertoire backup
-                try {
-                    deleteAllByExtension(PATH_APP+"/backup","");
-                } catch (IOException ex) {
-                    ex.printStackTrace();
+                deleteAllInDir(PATH_APP+"/backup");
+                //verifie si le dossier est bien vide
+                File file = new File(PATH_APP+"/backup");
+                if(file.isDirectory()) {
+                    if (file.list().length <= 0) {
+                        JOptionPane.showMessageDialog(null, "Fichiers de restauration supprimées"
+                                , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
+                    }
                 }
+
             }
         });
 
@@ -390,7 +396,19 @@ public class MainFrame extends JFrame {
         btnRefreshTree.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-              
+                FileExplorer f = new FileExplorer();
+                f.run();
+                remove(projectScrollPane);
+                projectExplorerTree = f.getTree();
+                projectExplorerTree.setBounds(10,40,150,200);
+                JPanel panel = new JPanel();
+                fileTreePanel.add(projectExplorerTree);
+                remove(fileTreePanel);
+                fileTreePanel.repaint();
+
+
+
+
             }
         });
     }
@@ -542,6 +560,32 @@ public class MainFrame extends JFrame {
 
             }
         }
+    }
+
+    public void deleteAllInDir(String pathtarget){
+        File dir  = new File(pathtarget);
+        File[] liste = dir.listFiles();
+        for(File item : liste){
+             if(item.isDirectory())
+            {
+                deleteDir(item);
+            }
+        }
+    }
+
+    public static boolean deleteDir(File dir) {
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i=0; i<children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+
+// The directory is now empty so delete it
+        return dir.delete();
     }
     //TODO *************************************************
     public void feedJlist(){

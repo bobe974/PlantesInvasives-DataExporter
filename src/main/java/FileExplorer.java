@@ -57,6 +57,8 @@ public class FileExplorer implements Runnable {
                 }
             }
         });
+
+        treeModel.reload();
     }
 
     public void init(){
@@ -120,5 +122,8 @@ public class FileExplorer implements Runnable {
     }
     public String getSelectedPath(){
         return selectedPath;
+    }
+    public void reloadTree(){
+        this.treeModel.reload();
     }
 }
