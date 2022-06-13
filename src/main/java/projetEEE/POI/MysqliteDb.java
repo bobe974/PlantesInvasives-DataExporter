@@ -14,7 +14,7 @@ public class MysqliteDb {
     private ResultSet rs,rs2;
     private String reqCreatedb = "CREATE TABLE IF NOT EXISTS \"Fiche\" (\n" +
             "\t\"num_fiche\"\tINTEGER NOT NULL,\n" +
-            "\t\"id_fiche\"\tINTEGER NOT NULL,\n" +
+            "\t\"id_fiche\"\tINTEGER NOT NULL UNIQUE,\n" +
             "\t\"nom_etablissement\"\tTEXT,\n" +
             "\t\"Nom_plante\"\tTEXT,\n" +
             "\t\"etat\"\tTEXT,\n" +

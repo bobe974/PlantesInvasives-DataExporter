@@ -1,6 +1,7 @@
-//import Transfert.MTPUtil;
-//import Transfert.PhoneToPc;
-//import jmtp.PortableDevice;
+//TODO REMOVE TODO REMOVE TODO REMOVE TODO REMOVE TODO REMOVE
+import Transfert.MTPUtil;
+import Transfert.PhoneToPc;
+import jmtp.PortableDevice;
 
 import projetEEE.POI.CreateCSV;
 import projetEEE.POI.CreateExcel;
@@ -115,11 +116,6 @@ public class MainFrame extends JFrame {
         fileTreePanel.setLayout(null);
         fileTreePanel.setPreferredSize(new Dimension(170,100));
 
-        //FileExplorer fileBrowser = new FileExplorer();
-        //fileBrowser.run();
-        /****TODO modif tree**/
-        //projectExplorerTree = fileBrowser.getTree();
-        //projectExplorerTree.setBounds(10,40,150,200);
         treeBackup = new DefaultMutableTreeNode("Backup");
         defaultTreeModel = new DefaultTreeModel(treeBackup);
         //recupere la liste des noms de fichiers dans le dossier backup
@@ -175,7 +171,8 @@ public class MainFrame extends JFrame {
 
         // --- PARTIE APPAREIL CONNECTE
         //Jlist
-//        feedJlist();
+        //TODO REMOVE TODO REMOVE TODO REMOVE TODO REMOVE TODO REMOVE
+        feedJlist();
         JPanel devicesPanel = new JPanel();
         devicesPanel.setLayout(null);
         devicesPanel.setPreferredSize(new Dimension(170,100));
@@ -234,29 +231,26 @@ public class MainFrame extends JFrame {
                             , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
                 }
                 //transfert
-                //TODO *************************************************
-                     //TODO user qui choisi un emplacement system au premier lancement
-//                     PhoneToPc phoneToPc = new PhoneToPc();
-//                     phoneToPc.TransfertPhoto(s,PATH_APP);
-//                     phoneToPc.TransfertDb(s,PATH_APP);
+                //TODO REMOVE TODO REMOVE TODO REMOVE TODO REMOVE TODO REMOVE
+                     PhoneToPc phoneToPc = new PhoneToPc();
+                     phoneToPc.TransfertPhoto(s,PATH_APP);
+                     phoneToPc.TransfertDb(s,PATH_APP);
 
                 //vérifie si le fichier existe
                 File fichier = new File(PATH_APP+"/PlanteInvasives.sqlite");
-                //TODO copier les photos dans le meme dossier
+
                 if(fichier.exists()){
                     JOptionPane.showMessageDialog(null, "Succes"
                             , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
                 }
 
-                //TODO copier la base dans le fichier back up
                 ArrayList<String> lesPhotos = getPhotosNames();
                 createBackup(deviceName, lesPhotos);
 
                 //lance la fenetre apercu
                 fenetre.setVisible(true);
                 fenetre.init("PlanteInvasives.sqlite");
-                // exemple pour une base dans un autre répertoire: backup/SM-G960F/PlanteInvasives.sqlite
-
+                updateJtree();
             }
         });
 
@@ -276,7 +270,6 @@ public class MainFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String nodePath = selectedPath;
-
                 //copie des photos dans le répertoire principale (pour l'export)
                 try {
                     copyAllByExtension(nodePath,PATH_APP,".jpg");
@@ -286,10 +279,8 @@ public class MainFrame extends JFrame {
                 //apercu de la base chargé
                 fenetre.setVisible(true);
                 fenetre.init(nodePath + "PlanteInvasives.sqlite");
-
             }
         });
-
 
         btnExport.addActionListener(new ActionListener() {
             @Override
@@ -297,7 +288,8 @@ public class MainFrame extends JFrame {
 
                 //vérifie si les cases sont selectionnées
                 if(!(checkcsv.isSelected() || checkxls.isSelected())){
-                    JOptionPane.showMessageDialog(null, "Veuillez choisir le format d'exportation"
+                    JOptionPane.showMessageDialog(null,
+                            "Veuillez choisir le format d'exportation"
                             , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
                 }else{
                     ResultSet resultSet = null;
@@ -325,20 +317,17 @@ public class MainFrame extends JFrame {
                                 //export xls
                                 CreateExcel createExcel = new CreateExcel(resultSet,fichier.getAbsolutePath());
                                 //copie des images au meme endroit que le fichier xls
-                                //TODO FICHER RACINE DE L'APP
+
                                 System.out.println(fichier.getParent());
                                 copyAllByExtension(PATH_APP,fichier.getParent(),".jpg");
                             }
                             if(checkcsv.isSelected()){
-                                //TODO EXPORT CSV
                                 System.out.println("absolute choose name : " + fichier.getAbsolutePath());
                                 CreateCSV createCSV = new CreateCSV(resultSet1,fichier.getAbsolutePath());
-
                             }
 
                             //vérifie si le fichier existe
                             fichier = new File(jFileChooser.getSelectedFile().getAbsolutePath()+".xls");
-                            //TODO copier les photos dans le meme dossier
                             if(fichier.exists()){
                                 JOptionPane.showMessageDialog(null, "Export effectué"
                                         , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
@@ -349,16 +338,7 @@ public class MainFrame extends JFrame {
                     } catch (SQLException | IOException ex) {
                         ex.printStackTrace();
                     }
-//                try {
-//                    CreateCSV createCSV = new CreateCSV(resultSet1);
-//                } catch (SQLException ex) {
-//                    ex.printStackTrace();
-//                } catch (IOException ex) {
-//                    ex.printStackTrace();
-//                }
                 }
-
-
             }
         });
 
@@ -406,7 +386,7 @@ public class MainFrame extends JFrame {
                                 , "Projet EEE", JOptionPane.PLAIN_MESSAGE);
                     }
                 }
-
+                updateJtree();
             }
         });
 
@@ -414,8 +394,8 @@ public class MainFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 model.clear();
-                //TODO *************************************************
-                //feedJlist();
+                //TODO REMOVE TODO REMOVE TODO REMOVE TODO REMOVE TODO REMOVE
+                feedJlist();
                 jList.repaint();
             }
         });
@@ -423,11 +403,7 @@ public class MainFrame extends JFrame {
         btnRefreshTree.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ArrayList<String> names = getFilename(PATH_APP+"/backup");
-                //affichage dans le jtree
-                treeBackup.removeAllChildren();
-                feedJtree(treeBackup,names);
-                defaultTreeModel.reload();
+                updateJtree();
             }
         });
     }
@@ -446,14 +422,12 @@ public class MainFrame extends JFrame {
         window.setTableModel();
     }
 
-
     /**
      * alimente les données d'une jtbable depuis la base principale
      * @return
      */
     public static Object[][] feedJtable(ResultSet resultSet){
         //affiche le contenu dans la jtable
-
         try {
             //resultSet = mysqliteDb.getAllMainDB();
             int i = 0;
@@ -485,6 +459,13 @@ public class MainFrame extends JFrame {
         }
     }
 
+    public void updateJtree(){
+        ArrayList<String> names = getFilename(PATH_APP+"/backup");
+        //affichage dans le jtree
+        treeBackup.removeAllChildren();
+        feedJtree(treeBackup,names);
+        defaultTreeModel.reload();
+    }
 
     /**
      * copie/colle tout les fichiers avec la meme extension
@@ -507,7 +488,6 @@ public class MainFrame extends JFrame {
                     //copié coller a la destination
                     Files.copy(item.toPath(),file.toPath());
                 }
-
             }
             else if(item.isDirectory())
             {
@@ -525,7 +505,6 @@ public class MainFrame extends JFrame {
         for(File item : liste){
             if(item.isFile())
             {
-
                 if (item.getName().toString().equals(fileName)) {
                     File file = new File(pathdest + "/" + item.getName().toString());
                     System.out.println(file.getAbsolutePath());
@@ -533,14 +512,12 @@ public class MainFrame extends JFrame {
                     //copié coller a la destination
                     Files.copy(item.toPath(),file.toPath());
                 }
-
             }
             else if(item.isDirectory())
             {
                 if (item.getName().toString().endsWith(".jpg")) {
                     System.out.format("Nom du fichier: %s%n", item.getName());
                 }
-
             }
         }
     }
@@ -555,7 +532,6 @@ public class MainFrame extends JFrame {
                     item.delete();
                     System.out.format( item.getName() +"supprimé");
                 }
-
             }
             else if(item.isDirectory())
             {
@@ -602,30 +578,28 @@ public class MainFrame extends JFrame {
                 }
             }
         }
-
-// The directory is now empty so delete it
         return dir.delete();
     }
-    //TODO *************************************************
-//    public void feedJlist(){
-//        //recuperer tous les appareils
-//        MTPUtil mtpUtil = new MTPUtil();
-//        for (PortableDevice portableDevice : mtpUtil.getDevices()){
-//            portableDevice.open();
-//            model.addElement(portableDevice.getModel());
-//            portableDevice.close();
-//        }
-//    }
+    //TODO REMOVE TODO REMOVE TODO REMOVE TODO REMOVE TODO REMOVE
+    public void feedJlist(){
+        //recuperer tous les appareils
+        MTPUtil mtpUtil = new MTPUtil();
+        for (PortableDevice portableDevice : mtpUtil.getDevices()){
+            portableDevice.open();
+            model.addElement(portableDevice.getModel());
+            portableDevice.close();
+        }
+    }
 
 
     public void createBackup(String folderName, ArrayList lesPhotographies){ //, ArrayList lesPhotos
         String path = PATH_APP+"/backup/"+folderName;
         //recupere la date actuelle
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd_HH_mm_ss");
-        System.out.println("yyyy/MM/dd HH:mm:ss-> "+dtf.format(LocalDateTime.now()));
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
+        String fileName = path+"-"+ dtf.format(LocalDateTime.now());
+        System.out.println("DATTTTTTTE" + fileName);
 
-
-        File file = new File(path);
+        File file = new File(fileName);
         if(!(file.exists()))
         {
             //si la base existe on se connecte
@@ -635,20 +609,18 @@ public class MainFrame extends JFrame {
             }catch (Exception e){
                 System.out.println(e);
             }
-
             //copie de la base de données
             try {
-                copyByName("PlanteInvasives.sqlite",PATH_APP,path);
+                copyByName("PlanteInvasives.sqlite",PATH_APP,fileName);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
             //copie des photos
             ArrayList<String> lesPhotos = lesPhotographies;
             for(String unePhoto : lesPhotos){
                 //copie de chaque photos trouvé depuis le répertoire de l'application
                 try {
-                    copyByName(unePhoto,PATH_APP,path);
+                    copyByName(unePhoto,PATH_APP,fileName);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

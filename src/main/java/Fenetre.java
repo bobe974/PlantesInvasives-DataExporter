@@ -40,7 +40,7 @@ public class Fenetre extends JFrame {
 
     public  Fenetre(MysqliteDb mysqliteDb){
         //frame de contextuelle
-        super("Prévisualition des données");
+        super("Prévisualisation des données");
         Dimension tailleEcran = Toolkit.getDefaultToolkit().getScreenSize();
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         int height = tailleEcran.height;
