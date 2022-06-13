@@ -1,6 +1,6 @@
 
-//import Transfert.PhoneToPc;
-//import jmtp.PortableDevice;
+import Transfert.PhoneToPc;
+import jmtp.PortableDevice;
 import projetEEE.POI.CreateExcel;
 import projetEEE.POI.MysqliteDb;
 
@@ -12,14 +12,15 @@ import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
+/**
+ *Fenetre de prévisualisaiton des données
+ * @author etienne baillif
+ * @version 1.0
+ */
 public class Fenetre extends JFrame {
 
     JTable jTable;
     JScrollPane scrollTable;
-    private  JProgressBar progressBar;
-
-    ResultSet resultSet;
     MysqliteDb mysqliteDb;
     String req = "SELECT * FROM Fiche \n" +
             "              INNER JOIN Photographie \n" +
@@ -51,7 +52,6 @@ public class Fenetre extends JFrame {
         setLayout(new FlowLayout());
         setLocationRelativeTo ( null );
         this.mysqliteDb = mysqliteDb;
-        //init();
     }
 
     public  void init(String dbPath){
@@ -59,12 +59,6 @@ public class Fenetre extends JFrame {
         ResultSet resultset = mysqliteDb.getResultset(dbPath,req);
         data = feedJtable(resultset);
         mysqliteDb.closeConnEx();
-
-        //        progressBar = new JProgressBar(0,1000);
-//        progressBar.setBounds(35,40,165,30);
-//        progressBar.setValue(0);
-//        progressBar.setStringPainted(true);
-//        frameProgress.add(progressBar);
 
         JPanel panel = new JPanel();
         JPanel panel2 = new JPanel();
@@ -135,23 +129,5 @@ public class Fenetre extends JFrame {
             ex.printStackTrace();
         }
         return data;
-    }
-
-    // fonction pour augmenter le progressBar
-    public void loop()
-    {
-        int i=0;
-        while(i <= 1000)
-        {
-            // remplit la barre
-            progressBar.setValue(i);
-            i = i + 10;
-            try
-            {
-                // retarder le thread
-                Thread.sleep(120);
-            }
-            catch(Exception e){}
-        }
     }
 }
