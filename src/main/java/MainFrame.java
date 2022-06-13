@@ -1,6 +1,6 @@
-import Transfert.MTPUtil;
-import Transfert.PhoneToPc;
-import jmtp.PortableDevice;
+//import Transfert.MTPUtil;
+//import Transfert.PhoneToPc;
+//import jmtp.PortableDevice;
 
 import projetEEE.POI.CreateCSV;
 import projetEEE.POI.CreateExcel;
@@ -12,12 +12,18 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.nio.file.Files;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import javax.swing.*;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.table.DefaultTableModel;
-
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 
 
 public class MainFrame extends JFrame {
@@ -32,6 +38,9 @@ public class MainFrame extends JFrame {
     private  JButton  btnExport, btnTransfert, btnRefresh, btnDelete;
     private String deviceName ;
     JTree projectExplorerTree;
+    DefaultMutableTreeNode treeBackup;
+    String selectedPath = "";
+    DefaultTreeModel defaultTreeModel;
 
 
     /**************DATA************/
@@ -58,7 +67,6 @@ public class MainFrame extends JFrame {
 
 
     private void initialize() {
-
         System.out.println(PATH_APP);
         //initialisation bdd
         mysqliteDb = new MysqliteDb();
@@ -107,11 +115,20 @@ public class MainFrame extends JFrame {
         fileTreePanel.setLayout(null);
         fileTreePanel.setPreferredSize(new Dimension(170,100));
 
-        FileExplorer fileBrowser = new FileExplorer();
-        fileBrowser.run();
-        projectExplorerTree = fileBrowser.getTree();
-        projectExplorerTree.setBounds(10,40,150,200);
+        //FileExplorer fileBrowser = new FileExplorer();
+        //fileBrowser.run();
+        /****TODO modif tree**/
+        //projectExplorerTree = fileBrowser.getTree();
+        //projectExplorerTree.setBounds(10,40,150,200);
+        treeBackup = new DefaultMutableTreeNode("Backup");
+        defaultTreeModel = new DefaultTreeModel(treeBackup);
+        //recupere la liste des noms de fichiers dans le dossier backup
+        ArrayList<String> filesname = getFilename(PATH_APP+"/backup");
+        //affichage dans le jtree
+        feedJtree(treeBackup,filesname);
+        projectExplorerTree = new JTree(defaultTreeModel);
         fileTreePanel.add(projectExplorerTree);
+        projectExplorerTree.setBounds(10,40,150,200);
 
         JButton btnRefreshTree = new JButton("Actualiser");
         btnRefreshTree.setBounds(40,250,100,20);
@@ -158,7 +175,7 @@ public class MainFrame extends JFrame {
 
         // --- PARTIE APPAREIL CONNECTE
         //Jlist
-        feedJlist();
+//        feedJlist();
         JPanel devicesPanel = new JPanel();
         devicesPanel.setLayout(null);
         devicesPanel.setPreferredSize(new Dimension(170,100));
@@ -219,9 +236,9 @@ public class MainFrame extends JFrame {
                 //transfert
                 //TODO *************************************************
                      //TODO user qui choisi un emplacement system au premier lancement
-                     PhoneToPc phoneToPc = new PhoneToPc();
-                     phoneToPc.TransfertPhoto(s,PATH_APP);
-                     phoneToPc.TransfertDb(s,PATH_APP);
+//                     PhoneToPc phoneToPc = new PhoneToPc();
+//                     phoneToPc.TransfertPhoto(s,PATH_APP);
+//                     phoneToPc.TransfertDb(s,PATH_APP);
 
                 //vérifie si le fichier existe
                 File fichier = new File(PATH_APP+"/PlanteInvasives.sqlite");
@@ -243,12 +260,22 @@ public class MainFrame extends JFrame {
             }
         });
 
+        projectExplorerTree.addTreeSelectionListener(new TreeSelectionListener() {
+            public void valueChanged(TreeSelectionEvent e) {
+                String value ="";
+                TreePath treepath = e.getPath();
+                Object elements[] = treepath.getPath();
+                for (int i = 0, n = elements.length; i < n; i++) {
+                    selectedPath = value += elements[i] + "/";
+                    System.out.println(selectedPath);
+                }
+            }
+        });
+
         btnSelectNode.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //recupere le noeud qui est séléctionné
-                System.out.println( fileBrowser.getSelectedPath());
-                String nodePath = fileBrowser.getSelectedPath() ;
+                String nodePath = selectedPath;
 
                 //copie des photos dans le répertoire principale (pour l'export)
                 try {
@@ -388,7 +415,7 @@ public class MainFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 model.clear();
                 //TODO *************************************************
-                feedJlist();
+                //feedJlist();
                 jList.repaint();
             }
         });
@@ -396,19 +423,11 @@ public class MainFrame extends JFrame {
         btnRefreshTree.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                FileExplorer f = new FileExplorer();
-                f.run();
-                remove(projectScrollPane);
-                projectExplorerTree = f.getTree();
-                projectExplorerTree.setBounds(10,40,150,200);
-                JPanel panel = new JPanel();
-                fileTreePanel.add(projectExplorerTree);
-                remove(fileTreePanel);
-                fileTreePanel.repaint();
-
-
-
-
+                ArrayList<String> names = getFilename(PATH_APP+"/backup");
+                //affichage dans le jtree
+                treeBackup.removeAllChildren();
+                feedJtree(treeBackup,names);
+                defaultTreeModel.reload();
             }
         });
     }
@@ -588,20 +607,23 @@ public class MainFrame extends JFrame {
         return dir.delete();
     }
     //TODO *************************************************
-    public void feedJlist(){
-        //recuperer tous les appareils
-        MTPUtil mtpUtil = new MTPUtil();
-        for (PortableDevice portableDevice : mtpUtil.getDevices()){
-            portableDevice.open();
-            model.addElement(portableDevice.getModel());
-            portableDevice.close();
-        }
-    }
+//    public void feedJlist(){
+//        //recuperer tous les appareils
+//        MTPUtil mtpUtil = new MTPUtil();
+//        for (PortableDevice portableDevice : mtpUtil.getDevices()){
+//            portableDevice.open();
+//            model.addElement(portableDevice.getModel());
+//            portableDevice.close();
+//        }
+//    }
 
 
     public void createBackup(String folderName, ArrayList lesPhotographies){ //, ArrayList lesPhotos
         String path = PATH_APP+"/backup/"+folderName;
         //recupere la date actuelle
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd_HH_mm_ss");
+        System.out.println("yyyy/MM/dd HH:mm:ss-> "+dtf.format(LocalDateTime.now()));
+
 
         File file = new File(path);
         if(!(file.exists()))
@@ -651,6 +673,25 @@ public class MainFrame extends JFrame {
             ex.printStackTrace();
         }
         return lesPhotos;
+    }
+
+    public ArrayList getFilename(String DirPath){
+        String[] pathnames;
+        ArrayList<String> names = new ArrayList<>();
+        File dir = new File(DirPath);
+        pathnames = dir.list();
+
+        for (String s : pathnames) {
+            System.out.println("fichier dans le dossier: "+ s);
+            names.add(s);
+        }
+        return names;
+    }
+
+    public void feedJtree(DefaultMutableTreeNode defaultMutableTreeNode, ArrayList<String> nodes){
+        for(String s : nodes){
+            defaultMutableTreeNode.add(new DefaultMutableTreeNode(s));
+        }
     }
 
 }
