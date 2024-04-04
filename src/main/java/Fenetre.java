@@ -13,7 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- *Fenetre de prévisualisaiton des données
+ *Fenetre de prévisualisatiton des données
  * @author etienne baillif
  * @version 1.0
  */
