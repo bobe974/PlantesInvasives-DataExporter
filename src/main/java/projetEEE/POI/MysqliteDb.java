@@ -2,16 +2,22 @@ package projetEEE.POI;
 
 import java.io.File;
 import java.sql.*;
+import java.util.ArrayList;
 
-
+/**
+ * Classe de manipulation de base de données
+ * @author etienne baillif
+ * @version 1.0
+ */
 public class MysqliteDb {
 
-    public static Connection conMainDb;
+    public static Connection conMainDb, connEx;
     private static boolean hasData = false;
     private ResultSet mainrs;
-    private ResultSet rs,rs2;
+    private ResultSet rs, rs2;
     private String reqCreatedb = "CREATE TABLE IF NOT EXISTS \"Fiche\" (\n" +
-            "\t\"id_fiche\"\tINTEGER NOT NULL,\n" +
+            "\t\"num_fiche\"\tINTEGER NOT NULL,\n" +
+            "\t\"id_fiche\"\tINTEGER NOT NULL UNIQUE,\n" +
             "\t\"nom_etablissement\"\tTEXT,\n" +
             "\t\"Nom_plante\"\tTEXT,\n" +
             "\t\"etat\"\tTEXT,\n" +
@@ -25,10 +31,10 @@ public class MysqliteDb {
             "\t\"latitude\"\tREAL NOT NULL,\n" +
             "\t\"longitude\"\tREAL NOT NULL,\n" +
             "\t\"remarques\"\tTEXT,\n" +
-            "\tPRIMARY KEY(\"id_fiche\" AUTOINCREMENT)\n" +
+            "\tPRIMARY KEY(\"num_fiche\"AUTOINCREMENT)\n" +
             ");";
 
-    public MysqliteDb(){
+    public MysqliteDb() {
 
         try {
             initialise();
@@ -37,49 +43,52 @@ public class MysqliteDb {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        connectToDb();
     }
 
-
     //créer la base de données locale
-    public void initialise() throws SQLException, ClassNotFoundException {
+    private void initialise() throws SQLException, ClassNotFoundException {
 
         //vérifie si la base existe
         File file = new File("Maindb.db");
-        if(file.exists())
-        {
+        if (file.exists()) {
             //si la base existe on se connecte
-            System.out.print("connection a la base existante");
+            System.out.print("*******connection a la base existante*******");
             //créer un la base a cet emplacement
             conMainDb = DriverManager.getConnection("jdbc:sqlite:Maindb.db");
-
-        }
-        else{
-
+            System.out.println();
+        } else {
             //créer la base
             Class.forName("org.sqlite.JDBC");
             conMainDb = DriverManager.getConnection("jdbc:sqlite:Maindb.db");
             Statement statement = conMainDb.createStatement();
             statement.executeUpdate(reqCreatedb);
-            System.out.println("base créer");
-
+            System.out.println("*********création d'une base*********");
         }
-
-
+    }
+    /******************METHODE CRUD MAIN ***********************/
+    public ResultSet getAllMainDB() throws SQLException {
+        Statement statement = conMainDb.createStatement();
+        ResultSet res;
+        res = statement.executeQuery("SELECT * FROM Fiche");
+        return res;
     }
 
-    public ResultSet getResult(){
-        return this.rs2;
+    public void deleteDB() throws SQLException {
+        Statement statement = conMainDb.createStatement();
+        statement.executeUpdate("DELETE FROM Fiche");
     }
 
-    //connection a une base
-    public void connectToDb(){
+    /**
+     * connection a une base de données, récupere toutes les occurences et insertion la base pricipale
+     * @param dbname
+     * @throws SQLException
+     */
+    public void feedDb(String dbname) throws SQLException {
         Connection connection = null;
 
-        try
-        {
+        try {
             //connection a une base existante
-            connection = DriverManager.getConnection("jdbc:sqlite:PlanteInvasives.sqlite");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbname);
             Statement statement = connection.createStatement();
             Statement statement2 = connection.createStatement();
             statement.setQueryTimeout(30);
@@ -100,70 +109,134 @@ public class MysqliteDb {
                     "            ON Fiche.id_fiche = Lieu.id_lieu ");
 
             //parcours de la base et ajout des champs dans la base principale
-            while(rs.next())
-            {
-                insert(rs.getString(2),rs.getString(7), rs.getString(8),
-                        rs.getString(9),rs.getString(10),rs.getString(4),
-                        rs.getString(5),rs.getString(12),rs.getString(13),
-                        rs.getString(14),rs.getString(15),rs.getString(16),
+
+            while (rs.next()) {
+                insert(rs.getString(4), rs.getString(2), rs.getString(7), rs.getString(8),
+                        rs.getString(9), rs.getString(10), rs.getString(4),
+                        rs.getString(5), rs.getString(12), rs.getString(13),
+                        rs.getString(14), rs.getString(15), rs.getString(16),
                         rs.getString(17));
 
                 System.out.println("**************insertion succes***************");
-//                System.out.println("id = " + rs.getInt(1));
-//                System.out.println("nometablissement  = " + rs.getString(2));
-//                System.out.println("path = " + rs.getString(4));
-//                System.out.println("datephoto = " + rs.getString(5));
-//                System.out.println("nomPlante:  = " + rs.getString(7));
-//                System.out.println("etatplante:  = " + rs.getString(8));
-//                System.out.println("stade plante = " + rs.getString(9));
-//                System.out.println("description plante:  = " + rs.getString(10));
-//                System.out.println("type lieu = " + rs.getString(12));
-//                System.out.println("surface lieu = " + rs.getString(13));
-//                System.out.println("nbindividu  = " + rs.getString(14));
-//                System.out.println("latittude = " + rs.getString(15));
-//                System.out.println("longitude = " + rs.getString(16));
-//                System.out.println("remarque = " + rs.getString(17));
-
             }
-        }
-        catch(SQLException e)
-        {
-            // if the error message is "out of memory",
-            // it probably means no database file is found
+        } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
+        connection.close();
     }
 
-    //ajoute un champs dans la base principale
-    public void insert(String etablissement, String nomPlante, String etat, String stade, String description, String path, String date, String type, String surface, String nb_indiv, String latitude ,String longitude, String remarques) throws SQLException {
-        String sql = "INSERT INTO  Fiche (nom_etablissement,Nom_plante,etat,stade,description,chemin_fichier,DatePhoto,type,surface,nb_individu,latitude,longitude,remarques) \n" +
-                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    /**
+     * recupere le resulset de la base de données ciblée
+     * @param dbname
+     * @param req
+     * @return
+     */
+    public ResultSet getResultset(String dbname, String req) {
+        Connection connection = null;
+
+        try {
+            //connection a une base existante
+            connEx = DriverManager.getConnection("jdbc:sqlite:" + dbname);
+            Statement statement = connEx.createStatement();
+            statement.setQueryTimeout(30);
+            rs = statement.executeQuery(req);
+            connection.close();
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return rs;
+
+    }
+
+    /**
+     * ajoute un champs dans la base principale
+     * @param id_fiche
+     * @param etablissement
+     * @param nomPlante
+     * @param etat
+     * @param stade
+     * @param description
+     * @param path
+     * @param date
+     * @param type
+     * @param surface
+     * @param nb_indiv
+     * @param latitude
+     * @param longitude
+     * @param remarques
+     * @throws SQLException
+     */
+    public void insert(String id_fiche, String etablissement, String nomPlante, String etat, String stade, String description, String path, String date, String type, String surface, String nb_indiv, String latitude, String longitude, String remarques) throws SQLException {
+        String sql = "INSERT INTO  Fiche (id_fiche,nom_etablissement,Nom_plante,etat,stade,description,chemin_fichier,DatePhoto,type,surface,nb_individu,latitude,longitude,remarques) \n" +
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         PreparedStatement statement = conMainDb.prepareStatement(sql);
-        statement.setString(1, etablissement);
-        statement.setString(2, nomPlante);
-        statement.setString(3, etat);
-        statement.setString(4, stade);
-        statement.setString(5, description);
+        statement.setString(1, id_fiche.substring(81, id_fiche.length() - 4));
+        statement.setString(2, etablissement);
+        statement.setString(3, nomPlante);
+        statement.setString(4, etat);
+        statement.setString(5, stade);
+        statement.setString(6, description);
         //recupere une partie du path
-        statement.setString(6, path.substring(76));
-        statement.setString(7, date);
-        statement.setString(8, type);
-        statement.setString(9, surface);
-        statement.setString(10, nb_indiv);
-        statement.setString(11, latitude);
-        statement.setString(12, longitude);
-        statement.setString(13, remarques);
+        statement.setString(7, path.substring(76));
+        statement.setString(8, date);
+        statement.setString(9, type);
+        statement.setString(10, surface);
+        statement.setString(11, nb_indiv);
+        statement.setString(12, latitude);
+        statement.setString(13, longitude);
+        statement.setString(14, remarques);
 
         int rowsInserted = statement.executeUpdate();
         if (rowsInserted > 0) {
             System.out.println("une fiche a été ajouté avec succes!");
         }
+        statement.close();
     }
 
-    public static void main(String[] args) throws SQLException, ClassNotFoundException {
-        MysqliteDb sqliteTest = new MysqliteDb();
-        sqliteTest.insert("pjac","tulipe","sale","grand","riendire","path","122929","typedemerde","carré","3","23","24","riendie");
+    /**
+     * Supprime toutes les occurences de la base de données
+     * @throws SQLException
+     */
+    public void deleteAll() throws SQLException {
+        String sql = "DELETE FROM Fiche";
+        String reset = "DELETE FROM sqlite_sequence WHERE name = 'Fiche'";
+        PreparedStatement preparedStatement = conMainDb.prepareStatement(sql);
+        preparedStatement.execute();
+        //reset auto increment
+        PreparedStatement preparedStatement1 = conMainDb.prepareStatement(reset);
+        preparedStatement1.execute();
+        preparedStatement.close();
+        preparedStatement1.close();
     }
 
+    /**
+     * recupere le nom de chaque occurence de la base
+     * @return
+     * @throws SQLException
+     */
+    public ArrayList < String > getNomColonne(ResultSet resultSet) throws SQLException {
+
+        ResultSetMetaData metadata = null;
+        int columnCount = 0;
+        ArrayList < String > colonne = new ArrayList < String > ();
+
+        metadata = resultSet.getMetaData();
+        columnCount = metadata.getColumnCount();
+
+        //la premiere colonne commence a 1
+        for (int i = 1; i < columnCount + 1; i++) {
+            String columnName = metadata.getColumnName(i);
+            colonne.add(columnName);
+        }
+        return colonne;
+    }
+    public void closeConnEx() {
+        try {
+            connEx.close();
+        } catch (Exception e) {
+            System.out.println("erreur fermeture base:" + e);
+        }
+    }
 
 }
